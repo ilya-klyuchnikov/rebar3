@@ -93,9 +93,9 @@ run_tests(State, Opts) ->
     ?DEBUG("Running tests with {ct_opts, ~p}.", [Opts2]),
     {RawOpts, _} = rebar_state:command_parsed_args(State),
     Result = case proplists:get_value(verbose, RawOpts, false) of
-        true  -> run_test_verbose(Opts2);
-        false -> run_test_quiet(Opts2)
-    end,
+                 true  -> run_test_verbose(Opts2);
+                 false -> run_test_quiet(Opts2)
+             end,
     ok = maybe_write_coverdata(State),
     Result.
 
@@ -112,7 +112,7 @@ format_error({badconfig, Msg}) ->
     io_lib:format(Msg, []);
 format_error({multiple_errors, Errors}) ->
     io_lib:format(lists:concat(["Error running tests:"] ++
-                               lists:map(fun(Error) -> "~n  " ++ Error end, Errors)), []);
+                                   lists:map(fun(Error) -> "~n  " ++ Error end, Errors)), []);
 format_error({error_reading_testspec, Reason}) ->
     io_lib:format("Error reading testspec: ~p", [Reason]).
 
@@ -125,14 +125,14 @@ format_error({error_reading_testspec, Reason}) ->
 -spec symlink_to_last_ct_logs(rebar_state:t(), list()) -> ok.
 symlink_to_last_ct_logs(State, Opts) ->
     LogDir = case proplists:get_value(logdir, Opts) of
-        undefined -> filename:join([rebar_dir:base_dir(State), "logs"]);
-        Dir -> Dir
-    end,
+                 undefined -> filename:join([rebar_dir:base_dir(State), "logs"]);
+                 Dir -> Dir
+             end,
     {ok, Filenames} = file:list_dir(LogDir),
     CtRunDirs = lists:filter(fun(S) -> re:run(S, "ct_run", [unicode]) /= nomatch end, Filenames),
     case CtRunDirs of
         [] ->
-            % If for some reason there are no such directories, we should not try to set up a link either.
+                                                % If for some reason there are no such directories, we should not try to set up a link either.
             ok;
         _ ->
             NewestDir = lists:last(lists:sort(CtRunDirs)),
@@ -213,7 +213,7 @@ transform_opts([Opt|Rest], Acc) ->
 %% is given.
 transform_retry(Opts, State) ->
     case proplists:get_value(retry, Opts, false) andalso
-         not is_any_defined([spec,dir,suite], Opts) of
+        not is_any_defined([spec,dir,suite], Opts) of
         false ->
             Opts;
         true ->
@@ -270,9 +270,9 @@ ensure_opts([V|Rest], Acc) ->
 
 add_hooks(Opts, State) ->
     FailFast = case fails_fast(State) of
-        true -> [cth_fail_fast];
-        false -> []
-    end,
+                   true -> [cth_fail_fast];
+                   false -> []
+               end,
     case {readable(State), lists:keyfind(ct_hooks, 1, Opts)} of
         {false, _} ->
             Opts;
@@ -284,9 +284,9 @@ add_hooks(Opts, State) ->
             ReadableHooks = [cth_readable_failonly, readable_shell_type(Other),
                              cth_retry] ++ FailFast,
             NewHooks = Hooks ++ [ReadableHook ||
-                ReadableHook <- ReadableHooks,
-                not is_defined(ReadableHook, Hooks)
-            ],
+                                    ReadableHook <- ReadableHooks,
+                                    not is_defined(ReadableHook, Hooks)
+                                ],
             lists:keyreplace(ct_hooks, 1, Opts, {ct_hooks, NewHooks})
     end.
 
@@ -305,7 +305,7 @@ select_tests(State, ProjectApps, CmdOpts, CfgOpts) ->
     %% set application env if sys_config argument is provided
     SysConfigs = sys_config_list(CmdOpts, CfgOpts),
     Configs = lists:flatmap(fun(Filename) ->
-                                rebar_file_utils:consult_config(State, Filename)
+                                    rebar_file_utils:consult_config(State, Filename)
                             end, SysConfigs),
     %% NB: load the applications (from user directories too) to support OTP < 17
     %% to our best ability.
@@ -339,8 +339,8 @@ merge_opts(CmdOpts0, CfgOpts0) ->
                   false ->
                       CfgOpts1;
                   true ->
-                       [Opt || Opt={K,_} <- CfgOpts1,
-                               not lists:member(K,TestSelectOpts)]
+                      [Opt || Opt={K,_} <- CfgOpts1,
+                              not lists:member(K,TestSelectOpts)]
               end,
     lists:ukeymerge(1, CmdOpts, CfgOpts).
 
@@ -432,7 +432,7 @@ inject_ct_state(State, Tests, [], Acc) ->
     case inject(rebar_state:opts(State), State, Tests) of
         {error, _} = Error -> Error;
         NewOpts            ->
-          {ok, {rebar_state:opts(State, NewOpts), lists:reverse(Acc)}}
+            {ok, {rebar_state:opts(State, NewOpts), lists:reverse(Acc)}}
     end.
 
 opts(Opts, Key, Default) ->
@@ -482,8 +482,8 @@ safe_define_ct_macro(Opts) ->
     %% defining a compile macro twice results in an exception so
     %% make sure 'COMMON_TEST' is only defined once
     case test_defined(Opts) of
-       true  -> Opts;
-       false -> [{d, 'COMMON_TEST'}|Opts]
+        true  -> Opts;
+        false -> [{d, 'COMMON_TEST'}|Opts]
     end.
 
 test_defined([{d, 'COMMON_TEST'}|_]) -> true;
@@ -714,8 +714,8 @@ handle_keep_logs(LogDir, N) ->
     case file:list_dir(LogDir) of
         {ok, Filenames} ->
             Dirs = lists:filter(fun(File) ->
-                        filelib:is_dir(filename:join([LogDir, File]))
-                    end, Filenames) -- ["last"], %% we ignore the symlink as we later handle it
+                                        filelib:is_dir(filename:join([LogDir, File]))
+                                end, Filenames) -- ["last"], %% we ignore the symlink as we later handle it
             case Dirs of
                 %% first time running the tests, there are no logs to delete
                 [] -> ok;
@@ -735,9 +735,9 @@ handle_keep_logs(LogDir, N) ->
 
 setup_logdir(State, Opts) ->
     Logdir = case proplists:get_value(logdir, Opts) of
-        undefined -> filename:join([rebar_dir:base_dir(State), "logs"]);
-        Dir       -> Dir
-    end,
+                 undefined -> filename:join([rebar_dir:base_dir(State), "logs"]);
+                 Dir       -> Dir
+             end,
     filelib:ensure_dir(filename:join([Logdir, "dummy.beam"])),
     case proplists:get_value(keep_logs, Opts) of
         all -> ok;
@@ -756,11 +756,11 @@ run_test_quiet(Opts) ->
     Ref = erlang:make_ref(),
     LogDir = proplists:get_value(logdir, Opts),
     {_, Monitor} = erlang:spawn_monitor(fun() ->
-        {ok, F} = file:open(filename:join([LogDir, "ct.latest.log"]),
-                            [write]),
-        true = group_leader(F, self()),
-        Pid ! {Ref, ct:run_test(Opts)}
-    end),
+                                                {ok, F} = file:open(filename:join([LogDir, "ct.latest.log"]),
+                                                                    [write]),
+                                                true = group_leader(F, self()),
+                                                Pid ! {Ref, ct:run_test(Opts)}
+                                        end),
     receive
         {Ref, Result} -> handle_quiet_results(Opts, Result);
         {'DOWN', Monitor, _, _, Reason} -> handle_results(?PRV_ERROR(Reason))
@@ -828,17 +828,17 @@ format_skipped({User, Auto}) ->
 maybe_cover_compile(State) ->
     {RawOpts, _} = rebar_state:command_parsed_args(State),
     State1 = case proplists:get_value(cover, RawOpts, false) of
-        true  -> rebar_state:set(State, cover_enabled, true);
-        false -> State
-    end,
+                 true  -> rebar_state:set(State, cover_enabled, true);
+                 false -> State
+             end,
     rebar_prv_cover:maybe_cover_compile(State1).
 
 maybe_write_coverdata(State) ->
     {RawOpts, _} = rebar_state:command_parsed_args(State),
     State1 = case proplists:get_value(cover, RawOpts, false) of
-        true  -> rebar_state:set(State, cover_enabled, true);
-        false -> State
-    end,
+                 true  -> rebar_state:set(State, cover_enabled, true);
+                 false -> State
+             end,
     Name = proplists:get_value(cover_export_name, RawOpts, ?PROVIDER),
     rebar_prv_cover:maybe_write_coverdata(State1, Name).
 
@@ -953,7 +953,7 @@ help(retry) ->
     "Experimental feature. If any specification for previously failing test is found, runs them.";
 help(fail_fast) ->
     "Experimental feature. If any test fails, the run is aborted. Since common test does not "
-    "support this natively, we abort the rebar3 run on a failure. This May break CT's disk logging and "
-    "other rebar3 features.";
+        "support this natively, we abort the rebar3 run on a failure. This May break CT's disk logging and "
+        "other rebar3 features.";
 help(_) ->
     "".

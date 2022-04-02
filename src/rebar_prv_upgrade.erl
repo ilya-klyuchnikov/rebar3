@@ -33,11 +33,11 @@ init(State) ->
                                                    {example, "rebar3 upgrade [cowboy[,ranch]]"},
                                                    {short_desc, "Upgrade dependencies."},
                                                    {desc, "Upgrade project dependencies. Use the -a/--all option to "
-                                                          "upgrade all dependencies. To upgrade specific dependencies, "
-                                                          "their names can be listed in the command."},
+                                                    "upgrade all dependencies. To upgrade specific dependencies, "
+                                                    "their names can be listed in the command."},
                                                    {opts, [{all, $a, "all", undefined, "Upgrade all dependencies."},
-                                                          {package, undefined, undefined, string,
-                                                           "List of packages to upgrade."}
+                                                           {package, undefined, undefined, string,
+                                                            "List of packages to upgrade."}
                                                           ]}])),
     {ok, State1}.
 
@@ -81,11 +81,11 @@ do_(State) ->
     Deps = [Dep || Dep <- TopDeps ++ ProfileDeps, % TopDeps > ProfileDeps
                    is_atom(Dep) orelse is_atom(element(1, Dep))],
     Names = case handle_args(State) of
-        {false, undefined} -> throw(?PRV_ERROR(no_arg));
-        {true, _} -> [Name || {Name, _, 0} <- Locks];
-        {false, Packages} -> Bin = rebar_utils:to_binary(Packages),
-                             lists:usort(re:split(Bin, <<" *, *">>, [trim, unicode]))
-    end,
+                {false, undefined} -> throw(?PRV_ERROR(no_arg));
+                {true, _} -> [Name || {Name, _, 0} <- Locks];
+                {false, Packages} -> Bin = rebar_utils:to_binary(Packages),
+                                     lists:usort(re:split(Bin, <<" *, *">>, [trim, unicode]))
+            end,
     DepsDict = deps_dict(rebar_state:all_deps(State)),
     AltDeps = find_non_default_deps(Deps, State),
     FilteredNames = cull_default_names_if_profiles(Names, Deps, State),
@@ -125,8 +125,8 @@ format_error({unknown_dependency, Name}) ->
     io_lib:format("Dependency ~ts not found", [Name]);
 format_error({transitive_dependency, Name}) ->
     io_lib:format("Dependency ~ts is transitive and cannot be safely upgraded. "
-                 "Promote it to your top-level rebar.config file to upgrade it.",
-                 [Name]);
+                  "Promote it to your top-level rebar.config file to upgrade it.",
+                  [Name]);
 format_error({checkout_dependency, Name}) ->
     io_lib:format("Dependency ~ts is a checkout dependency under _checkouts/ and checkouts cannot be upgraded.",
                   [Name]);
@@ -176,11 +176,11 @@ update_package(Name, RepoConfig, State) ->
 find_non_default_deps(Deps, State) ->
     AltProfiles = rebar_state:current_profiles(State) -- [default],
     AltProfileDeps = lists:append([
-        rebar_state:get(State, {deps, Profile}, []) || Profile <- AltProfiles]
-    ),
+                                   rebar_state:get(State, {deps, Profile}, []) || Profile <- AltProfiles]
+                                 ),
     [Dep || Dep <- AltProfileDeps,
             is_atom(Dep) orelse is_atom(element(1, Dep))
-            andalso not lists:member(Dep, Deps)].
+                andalso not lists:member(Dep, Deps)].
 
 %% If any alt profiles are used, remove the default profiles from
 %% the upgrade list and warn about it.
@@ -191,9 +191,9 @@ cull_default_names_if_profiles(Names, Deps, State) ->
         _ ->
             ?INFO("Dependencies in the default profile will not be upgraded", []),
             lists:filter(fun(Name) ->
-                AtomName = binary_to_atom(Name, utf8),
-                rebar_utils:tup_find(AtomName, Deps) == false
-            end, Names)
+                                 AtomName = binary_to_atom(Name, utf8),
+                                 rebar_utils:tup_find(AtomName, Deps) == false
+                         end, Names)
     end.
 
 prepare_locks([], _, Locks, Unlocks, _Dict, _AltDeps, _Checkouts) ->
@@ -236,13 +236,13 @@ prepare_locks([Name|Names], Deps, Locks, Unlocks, Dict, AltDeps, Checkouts) ->
 
 prepare_lock(Dep, Lock, Locks, Dict) ->
     {Name1, Source} = case Dep of
-        {Name, SrcOrVsn} -> {Name, SrcOrVsn};
-        {Name, _, Src} -> {Name, Src};
-        _ when is_atom(Dep) ->
-            %% version-free package. Must unlock whatever matches in locks
-            {_, Vsn, _} = lists:keyfind(rebar_utils:to_binary(Dep), 1, Locks),
-            {Dep, Vsn}
-    end,
+                          {Name, SrcOrVsn} -> {Name, SrcOrVsn};
+                          {Name, _, Src} -> {Name, Src};
+                          _ when is_atom(Dep) ->
+                              %% version-free package. Must unlock whatever matches in locks
+                              {_, Vsn, _} = lists:keyfind(rebar_utils:to_binary(Dep), 1, Locks),
+                              {Dep, Vsn}
+                      end,
     Children = all_children(Name1, Dict),
     {NewLocks, NewUnlocks} = unlock_children(Children, Locks -- [Lock]),
     {Source, NewLocks, NewUnlocks}.

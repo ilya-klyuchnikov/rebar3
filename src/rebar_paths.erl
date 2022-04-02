@@ -36,8 +36,8 @@ unset_paths(UserTargets, State) ->
 clashing_apps(Targets, State) ->
     AppGroups = app_groups(Targets, State),
     AppNames = [{G, sets:from_list(
-                    [rebar_app_info:name(App) || App <- Apps]
-                )} || {G, Apps} <- AppGroups],
+		      [rebar_app_info:name(App) || App <- Apps]
+		     )} || {G, Apps} <- AppGroups],
     clashing_app_names(sets:new(), AppNames, []).
 
 %%%%%%%%%%%%%%%
@@ -55,17 +55,17 @@ normalize_targets(List) ->
     %% which means we'd risk failing kind of violently. We only support
     %% deps, plugins and runtime deps.
     TmpList = lists:foldl(
-      fun(deps, [deps | _] = Acc) -> Acc;
-         (plugins, [plugins | _] = Acc) -> Acc;
-         (runtime, [runtime | _] = Acc) -> Acc;
-         (deps, Acc) -> [deps | Acc -- [deps]];
-         (plugins, Acc) -> [plugins | Acc -- [plugins]];
-         (runtime, Acc) -> [runtime | Acc -- [runtime]];
-         (_, Acc) -> Acc
-      end,
-      [],
-      List
-    ),
+		fun(deps, [deps | _] = Acc) -> Acc;
+		   (plugins, [plugins | _] = Acc) -> Acc;
+		   (runtime, [runtime | _] = Acc) -> Acc;
+		   (deps, Acc) -> [deps | Acc -- [deps]];
+		   (plugins, Acc) -> [plugins | Acc -- [plugins]];
+		   (runtime, Acc) -> [runtime | Acc -- [runtime]];
+		   (_, Acc) -> Acc
+		end,
+		[],
+		List
+	       ),
     lists:reverse(TmpList).
 
 purge_and_load([], _) ->
@@ -117,25 +117,25 @@ purge_and_load([{_Group, Apps}|Rest], Seen) ->
             AppName =/= <<"rebar">>],
     %% 4)
     CandidateMods = lists:append(
-        %% Start by asking the currently loaded app (if loaded)
-        %% since it would be the primary source of conflicting modules
-        [case application:get_key(AppName, modules) of
-             {ok, Mods} ->
-                 Mods;
-             undefined ->
-                 %% if not found, parse the app file on disk, in case
-                 %% the app's modules are used without it being loaded;
-                 %% invalidate the cache in case we're proceeding during
-                 %% compilation steps by setting the app details to `[]', which
-                 %% is its empty value; the details will then be reloaded
-                 %% from disk when found
-                 case rebar_app_info:app_details(rebar_app_info:app_details(App, [])) of
-                     [] -> [];
-                     Details -> proplists:get_value(modules, Details, [])
-                 end
-         end || App <- GoodApps,
-                AppName <- [binary_to_atom(rebar_app_info:name(App), utf8)]]
-    ),
+		      %% Start by asking the currently loaded app (if loaded)
+		      %% since it would be the primary source of conflicting modules
+		      [case application:get_key(AppName, modules) of
+			   {ok, Mods} ->
+			       Mods;
+			   undefined ->
+			       %% if not found, parse the app file on disk, in case
+			       %% the app's modules are used without it being loaded;
+			       %% invalidate the cache in case we're proceeding during
+			       %% compilation steps by setting the app details to `[]', which
+			       %% is its empty value; the details will then be reloaded
+			       %% from disk when found
+			       case rebar_app_info:app_details(rebar_app_info:app_details(App, [])) of
+				   [] -> [];
+				   Details -> proplists:get_value(modules, Details, [])
+			       end
+		       end || App <- GoodApps,
+			      AppName <- [binary_to_atom(rebar_app_info:name(App), utf8)]]
+		     ),
     ModPaths = [{Mod,Path} || Mod <- CandidateMods,
                               erlang:function_exported(Mod, module_info, 0),
                               {file, Path} <- [code:is_loaded(Mod)]],
@@ -158,10 +158,10 @@ misloaded_modules(GoodAppPaths, ModPaths) ->
     %% Identify paths that are invalid; i.e. app paths that cover an
     %% app in the desired group, but are not in the desired group.
     lists:usort(
-        [Mod || {Mod, Path} <- ModPaths,
-                is_list(Path), % not 'preloaded' or mocked
-                not any_prefix(Path, GoodAppPaths)]
-    ).
+      [Mod || {Mod, Path} <- ModPaths,
+	      is_list(Path), % not 'preloaded' or mocked
+	      not any_prefix(Path, GoodAppPaths)]
+     ).
 
 any_prefix(Path, Paths) ->
     lists:any(fun(P) -> lists:prefix(P, Path) end, Paths).
@@ -231,11 +231,11 @@ get_runtime_apps([App|Rest0], AppsAcc0, AppsList) ->
 
     {Rest1, AppsAcc1} =
         lists:foldl(
-            fun(AppName, {Rest, Acc}) ->
-                %% We only care about those apps we ccould find in the state.
-                case rebar_app_utils:find(AppName, AppsList) of
-                    {ok, AppInfo} -> {[AppInfo|Rest], sets:add_element(AppInfo, Acc)};
-                    error -> {Rest, Acc}
-                end
-            end, {Rest0, sets:add_element(App, AppsAcc0)}, TotalApps),
+	  fun(AppName, {Rest, Acc}) ->
+		  %% We only care about those apps we ccould find in the state.
+		  case rebar_app_utils:find(AppName, AppsList) of
+		      {ok, AppInfo} -> {[AppInfo|Rest], sets:add_element(AppInfo, Acc)};
+		      error -> {Rest, Acc}
+		  end
+	  end, {Rest0, sets:add_element(App, AppsAcc0)}, TotalApps),
     get_runtime_apps(Rest1 ++ TotalApps, AppsAcc1, AppsList).

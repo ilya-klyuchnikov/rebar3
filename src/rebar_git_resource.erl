@@ -115,7 +115,7 @@ compare_url(Dir, Url) ->
     {ok, CurrentUrl} = rebar_utils:sh(?FMT("git config --get remote.origin.url", []),
                                       [{cd, Dir}]),
     CurrentUrl1 = rebar_string:trim(rebar_string:trim(CurrentUrl, both, "\n"),
-                                     both, "\r"),
+                                    both, "\r"),
     {ok, ParsedUrl} = parse_git_url(Url),
     {ok, ParsedCurrentUrl} = parse_git_url(CurrentUrl1),
     ?DEBUG("Comparing git url ~p with ~p", [ParsedUrl, ParsedCurrentUrl]),
@@ -180,7 +180,7 @@ download_(Dir, {git, Url, Rev}, _State) ->
 
 maybe_warn_local_url(Url) ->
     WarnStr = "Local git resources (~ts) are unsupported and may have odd behaviour. "
-              "Use remote git resources, or a plugin for local dependencies.",
+        "Use remote git resources, or a plugin for local dependencies.",
     case parse_git_url(Url) of
         {error, no_scheme} -> ?WARN(WarnStr, [Url]);
         {error, no_default_port} -> ?WARN(WarnStr, [Url]);
@@ -303,9 +303,9 @@ make_vsn_(Dir) ->
 
 git_ref(Dir, Arg) ->
     case rebar_utils:sh("git rev-parse " ++ Arg ++ " HEAD",
-                       [{use_stdout, false},
-                        return_on_error,
-                        {cd, Dir}]) of
+                        [{use_stdout, false},
+                         return_on_error,
+                         {cd, Dir}]) of
         {error, _} ->
             ?WARN("Getting ref of git repo failed in ~ts. "
                   "Falling back to version 0", [Dir]),
@@ -318,9 +318,9 @@ collect_default_refcount(Dir) ->
     %% Get the tag timestamp and minimal ref from the system. The
     %% timestamp is really important from an ordering perspective.
     case rebar_utils:sh("git log -n 1 --pretty=format:\"%h\n\" ",
-                       [{use_stdout, false},
-                        return_on_error,
-                        {cd, Dir}]) of
+                        [{use_stdout, false},
+                         return_on_error,
+                         {cd, Dir}]) of
         {error, _} ->
             ?WARN("Getting log of git repo failed in ~ts. "
                   "Falling back to version 0.0.0", [Dir]),
@@ -388,7 +388,7 @@ parse_tags(Dir) ->
                     {Tag, lists:last(rebar_string:lexemes(Vsn, "/"))};
                 nomatch ->
                     case rebar_utils:sh("git describe --tags --abbrev=0",
-                            [{use_stdout, false}, return_on_error, {cd, Dir}]) of
+                                        [{use_stdout, false}, return_on_error, {cd, Dir}]) of
                         {error, _} ->
                             {undefined, "0.0.0"};
                         %% strip the v prefix if it exists like is done in the above match
@@ -402,12 +402,12 @@ parse_tags(Dir) ->
 
 git_clone_options() ->
     Option = case os:getenv("REBAR_GIT_CLONE_OPTIONS") of
-        false ->
-            "" ;
-        Opt ->
-            ?DEBUG("Git Clone Options: ~p",[Opt]),
-            Opt
-    end,
+                 false ->
+                     "" ;
+                 Opt ->
+                     ?DEBUG("Git Clone Options: ~p",[Opt]),
+                     Opt
+             end,
     Option.
 
 check_type_support() ->

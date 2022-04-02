@@ -14,7 +14,7 @@
 context(AppInfo) ->
     Dir = rebar_app_info:dir(AppInfo),
     Mappings = [{".bin", filename:join([Dir, "priv", "mibs"])},
-               {".hrl", filename:join(Dir, "include")}],
+		{".hrl", filename:join(Dir, "include")}],
 
     #{src_dirs => ["mibs"],
       include_dirs => [],
@@ -48,17 +48,17 @@ filter_file_list(FileList) ->
         [] ->
             FileList;
         _ ->
-          atoms_in_mib_first_files_warning(Atoms),
-          lists:filter( fun(X) -> not(is_atom(X)) end, FileList)
-     end.
+	    atoms_in_mib_first_files_warning(Atoms),
+	    lists:filter( fun(X) -> not(is_atom(X)) end, FileList)
+    end.
 
 atoms_in_mib_first_files_warning(Atoms) ->
-  W = "You have provided atoms as file entries in mib_first_files; "
-      "mib_first_files only expects lists of filenames as strings. "
-      "The following MIBs (~p) may not work as expected and it is advised "
-      "that you change these entries to string format "
-      "(e.g., \"mibs/SOME-MIB.mib\") ",
-  ?WARN(W, [Atoms]).
+    W = "You have provided atoms as file entries in mib_first_files; "
+	"mib_first_files only expects lists of filenames as strings. "
+	"The following MIBs (~p) may not work as expected and it is advised "
+	"that you change these entries to string format "
+	"(e.g., \"mibs/SOME-MIB.mib\") ",
+    ?WARN(W, [Atoms]).
 
 
 dependencies(File, _Dir, SrcDirs) ->
@@ -115,20 +115,20 @@ src_files(Dir) ->
 file_deps(File, Files) ->
     DepMods = imports_in_file(File),
     lists:filter(
-        fun(F) ->
-            Mods = modules_in_file(F),
-            lists:any(fun(M) -> lists:member(M, Mods) end, DepMods)
-        end,
-        Files
-    ).
+      fun(F) ->
+	      Mods = modules_in_file(F),
+	      lists:any(fun(M) -> lists:member(M, Mods) end, DepMods)
+      end,
+      Files
+     ).
 
 modules_in_file(File) ->
     {ok, Bin} = file:read_file(File),
     Res = re:run(
-        Bin,
-        "^([a-zA-Z0-9_-]+)\\s+DEFINITIONS\\s+::=\\s+BEGIN",
-        [multiline, {capture, all_but_first, list}, global, unicode]
-    ),
+	    Bin,
+	    "^([a-zA-Z0-9_-]+)\\s+DEFINITIONS\\s+::=\\s+BEGIN",
+	    [multiline, {capture, all_but_first, list}, global, unicode]
+	   ),
     case Res of
         nomatch ->
             [];
@@ -139,19 +139,19 @@ modules_in_file(File) ->
 imports_in_file(File) ->
     {ok, Bin} = file:read_file(File),
     ImportMatch = re:run(
-        Bin,
-        "IMPORTS\\s+(.*);",
-        [multiline, dotall, ungreedy, {capture, all_but_first, list}, global]
-    ),
+		    Bin,
+		    "IMPORTS\\s+(.*);",
+		    [multiline, dotall, ungreedy, {capture, all_but_first, list}, global]
+		   ),
     case ImportMatch of
         nomatch ->
             [];
         {match, ImportSections} ->
             Modules = re:run(
-                ImportSections,
-                "FROM\\s+([a-zA-Z0-9_-]+)\\s+",
-                [multiline, {capture, all_but_first, list}, global]
-            ),
+			ImportSections,
+			"FROM\\s+([a-zA-Z0-9_-]+)\\s+",
+			[multiline, {capture, all_but_first, list}, global]
+		       ),
             case Modules of
                 nomatch ->
                     [];

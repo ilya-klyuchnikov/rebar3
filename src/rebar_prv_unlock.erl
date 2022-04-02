@@ -19,22 +19,22 @@
 -spec init(rebar_state:t()) -> {ok, rebar_state:t()}.
 init(State) ->
     State1 = rebar_state:add_provider(
-        State,
-        providers:create([{name, ?PROVIDER},
-                          {module, ?MODULE},
-                          {bare, true},
-                          {deps, ?DEPS},
-                          {example, ""},
-                          {short_desc, "Unlock dependencies."},
-                          {desc, "Unlock project dependencies. Use the --all option "
-                                 "to unlock all dependencies. To unlock specific dependencies, "
-                                 "their name can be listed in the command."},
-                          {opts, [{all, $a, "all", undefined, "Unlock all dependencies and remove the lock file."},
-                            {package, undefined, undefined, string,
-                             "List of packages to unlock."}
-                          ]}
-                         ])
-    ),
+	       State,
+	       providers:create([{name, ?PROVIDER},
+				 {module, ?MODULE},
+				 {bare, true},
+				 {deps, ?DEPS},
+				 {example, ""},
+				 {short_desc, "Unlock dependencies."},
+				 {desc, "Unlock project dependencies. Use the --all option "
+				  "to unlock all dependencies. To unlock specific dependencies, "
+				  "their name can be listed in the command."},
+				 {opts, [{all, $a, "all", undefined, "Unlock all dependencies and remove the lock file."},
+					 {package, undefined, undefined, string,
+					  "List of packages to unlock."}
+					]}
+				])
+	      ),
     {ok, State1}.
 
 do(State) ->

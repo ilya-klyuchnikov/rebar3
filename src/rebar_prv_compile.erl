@@ -100,21 +100,21 @@ format_error(Reason) ->
 
 pick_deps_to_build(State, MustBuild, All, Tag) ->
     InvalidDags = lists:any(
-        fun({_Mod, Status}) ->
-            %% A DAG that is not found can be valid, it just has no matching
-            %% source file. However, bad_vsn, bad_format, and bad_meta should
-            %% all trigger rebuilds.
-            %% Good:
-            %%  lists:member(Status, [valid, not_found])
-            %% Bad:
-            %%  lists:member(Status, [bad_vsn, bad_format, bad_meta])
-            %%
-            %% Since the fastest check is done on smaller lists handling
-            %% the common case first:
-            not lists:member(Status, [valid, not_found])
-        end,
-        check_dags(State, Tag)
-    ),
+		    fun({_Mod, Status}) ->
+			    %% A DAG that is not found can be valid, it just has no matching
+			    %% source file. However, bad_vsn, bad_format, and bad_meta should
+			    %% all trigger rebuilds.
+			    %% Good:
+			    %%  lists:member(Status, [valid, not_found])
+			    %% Bad:
+			    %%  lists:member(Status, [bad_vsn, bad_format, bad_meta])
+			    %%
+			    %% Since the fastest check is done on smaller lists handling
+			    %% the common case first:
+			    not lists:member(Status, [valid, not_found])
+		    end,
+		    check_dags(State, Tag)
+		   ),
     case InvalidDags of
         true -> All;
         false -> MustBuild
@@ -130,14 +130,14 @@ copy_and_build_project_apps(State, Providers, Apps) ->
     compile(State, Providers, Apps0, project_apps).
 
 -spec compile(rebar_state:t(), [rebar_app_info:t()]) -> [rebar_app_info:t()]
-      ;      (rebar_state:t(), rebar_app_info:t()) -> rebar_app_info:t().
+	       ;      (rebar_state:t(), rebar_app_info:t()) -> rebar_app_info:t().
 compile(State, AppInfo) ->
     compile(State, rebar_state:providers(State), AppInfo).
 
 -spec compile(rebar_state:t(), [providers:t()],
               [rebar_app_info:t()]) -> [rebar_app_info:t()]
-      ;      (rebar_state:t(), [providers:t()],
-              rebar_app_info:t()) -> rebar_app_info:t().
+	       ;      (rebar_state:t(), [providers:t()],
+		       rebar_app_info:t()) -> rebar_app_info:t().
 compile(State, Providers, AppInfo) when not is_list(AppInfo) ->
     [Res] = compile(State, Providers, [AppInfo], undefined),
     Res;
@@ -192,15 +192,15 @@ run_compilers(State, _Providers, Apps, Tag) ->
     %% Potentially store shared compiler DAGs so next runs can easily
     %% share the base information for easy re-scans.
     lists:foreach(fun({Mod, {G, {Dir, DAGLabel, CritMeta}}}) ->
-        rebar_compiler_dag:maybe_store(G, Dir, Mod, DAGLabel, CritMeta),
-        rebar_compiler_dag:terminate(G)
-    end, DAGsInfo),
+			  rebar_compiler_dag:maybe_store(G, Dir, Mod, DAGLabel, CritMeta),
+			  rebar_compiler_dag:terminate(G)
+		  end, DAGsInfo),
     Apps.
 
 load_dags(State, Tag) ->
     F = fun(Dir, Mod, DAGLabel, CritMeta) ->
-            {rebar_compiler_dag:init(Dir, Mod, DAGLabel, CritMeta),
-             {Dir, DAGLabel, CritMeta}}
+		{rebar_compiler_dag:init(Dir, Mod, DAGLabel, CritMeta),
+		 {Dir, DAGLabel, CritMeta}}
         end,
     map_dags(F, State, Tag).
 
@@ -316,7 +316,7 @@ extra_virtual_apps(State, VApp0, [Dir|Dirs]) ->
             AppName = unicode:characters_to_binary(["extra_", Dir]),
             VApp5 = rebar_app_info:name(VApp4, AppName),
             [rebar_app_info:set(VApp5, src_dirs, [OutDir])
-             | extra_virtual_apps(State, VApp0, Dirs)]
+	    | extra_virtual_apps(State, VApp0, Dirs)]
     end.
 
 %% ===================================================================
@@ -325,12 +325,12 @@ extra_virtual_apps(State, VApp0, [Dir|Dirs]) ->
 
 build_apps(DAGs, Apps, State) ->
     {Rebar3, Custom} = lists:partition(
-        fun(AppInfo) ->
-            Type = rebar_app_info:project_type(AppInfo),
-            Type =:= rebar3 orelse Type =:= undefined
-        end,
-        Apps
-    ),
+			 fun(AppInfo) ->
+				 Type = rebar_app_info:project_type(AppInfo),
+				 Type =:= rebar3 orelse Type =:= undefined
+			 end,
+			 Apps
+			),
     [build_custom_builder_app(AppInfo, State) || AppInfo <- Custom],
     build_rebar3_apps(DAGs, Rebar3, State).
 
@@ -371,20 +371,20 @@ build_rebar3_apps(DAGs, Apps, State) ->
     [begin
          {Ctx, ReorderedApps} = rebar_compiler:analyze_all(DAG, Apps),
          lists:foreach(
-             fun(AppInfo) ->
-                DAG =:= LastDAG andalso
-                  ?INFO("Compiling ~ts", [rebar_app_info:name(AppInfo)]),
-                rebar_compiler:compile_analyzed(DAG, AppInfo, Ctx)
-             end,
-             ReorderedApps
-         ),
+	   fun(AppInfo) ->
+		   DAG =:= LastDAG andalso
+		       ?INFO("Compiling ~ts", [rebar_app_info:name(AppInfo)]),
+		   rebar_compiler:compile_analyzed(DAG, AppInfo, Ctx)
+	   end,
+	   ReorderedApps
+	  ),
          {ExtraCtx, ReorderedExtraApps} = rebar_compiler:analyze_all_extras(DAG, Apps),
          lists:foreach(
-             fun(AppInfo) ->
-                rebar_compiler:compile_analyzed(DAG, AppInfo, ExtraCtx)
-             end,
-             ReorderedExtraApps
-         )
+	   fun(AppInfo) ->
+		   rebar_compiler:compile_analyzed(DAG, AppInfo, ExtraCtx)
+	   end,
+	   ReorderedExtraApps
+	  )
      end || DAG <- DAGs],
     ok.
 
@@ -527,11 +527,11 @@ normalize_src_dirs(SrcDirs, ExtraDirs) ->
 %% warn when directories called `eunit' and `ct' are added to compile dirs
 warn_on_problematic_directories(AllDirs) ->
     F = fun(Dir) ->
-        case is_a_problem(Dir) of
-            true  -> ?WARN("Possible name clash with directory ~p.", [Dir]);
-            false -> ok
-        end
-    end,
+		case is_a_problem(Dir) of
+		    true  -> ?WARN("Possible name clash with directory ~p.", [Dir]);
+		    false -> ok
+		end
+	end,
     lists:foreach(F, AllDirs).
 
 is_a_problem("eunit") -> true;

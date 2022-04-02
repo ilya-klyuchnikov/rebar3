@@ -308,9 +308,9 @@ tup_dedup_([A|T]) ->
 %% These properties let us merge proplists fairly easily.
 tup_sort(List) ->
     lists:sort(fun(A, B) when is_tuple(A), is_tuple(B) -> element(1, A) =< element(1, B)
-               ;  (A, B) when is_tuple(A) -> element(1, A) =< B
-               ;  (A, B) when is_tuple(B) -> A =< element(1, B)
-               ;  (A, B) -> A =< B
+                 ;  (A, B) when is_tuple(A) -> element(1, A) =< B
+                 ;  (A, B) when is_tuple(B) -> A =< element(1, B)
+                 ;  (A, B) -> A =< B
                end, List).
 
 %% Custom merge functions. The objective is to behave like lists:umerge/2,
@@ -375,7 +375,7 @@ umerge(old, [New|News], Olds, Acc, Current) ->
     umerge(Dir, News, Olds, [Merged|Acc], NewCurrent).
 
 -spec compare({Priority, term()}, {Secondary, term()}) ->
-    {NextPriority, Merged, Larger} when
+          {NextPriority, Merged, Larger} when
       Priority :: new | old,
       Secondary :: new | old,
       NextPriority :: new | old,
@@ -434,8 +434,8 @@ check_blacklisted_otp_versions(BlacklistedRegexes) ->
     %% Fully-qualify with ?MODULE so the function can be meck'd in rebar_utils_SUITE
     OtpRelease = ?MODULE:otp_release(),
     lists:foreach(
-        fun(BlacklistedRegex) -> abort_if_blacklisted(BlacklistedRegex, OtpRelease) end,
-        BlacklistedRegexes).
+      fun(BlacklistedRegex) -> abort_if_blacklisted(BlacklistedRegex, OtpRelease) end,
+      BlacklistedRegexes).
 
 abort_if_blacklisted(BlacklistedRegex, OtpRelease) ->
     case re:run(OtpRelease, BlacklistedRegex, [{capture, none}]) of
@@ -463,21 +463,21 @@ reread_config(ConfigList) ->
 
 reread_config(ConfigList, Opts) ->
     UpdateLoggerConfig = erlang:function_exported(logger, module_info, 0) andalso
-                         proplists:get_value(update_logger, Opts, false),
+        proplists:get_value(update_logger, Opts, false),
     %% NB: we attempt to mimic -config here, which survives app reload,
     %% hence {persistent, true}.
     SetEnv = case version_tuple(?MODULE:otp_release()) of
-        {X, _, _} when X < 17 ->
-            fun application:set_env/3;
-        _ ->
-            fun (App, Key, Val) -> application:set_env(App, Key, Val, [{persistent, true}]) end
-    end,
+                 {X, _, _} when X < 17 ->
+                     fun application:set_env/3;
+                 _ ->
+                     fun (App, Key, Val) -> application:set_env(App, Key, Val, [{persistent, true}]) end
+             end,
     try
         Res =
-        [SetEnv(Application, Key, Val)
-        || Config <- ConfigList,
-           {Application, Items} <- Config,
-           {Key, Val} <- Items],
+            [SetEnv(Application, Key, Val)
+             || Config <- ConfigList,
+                {Application, Items} <- Config,
+                {Key, Val} <- Items],
         case UpdateLoggerConfig of
             true -> reread_logger_config();
             false -> ok
@@ -485,7 +485,7 @@ reread_config(ConfigList, Opts) ->
         Res
     catch _:_ ->
             ?ERROR("The configuration file submitted could not be read "
-                  "and will be ignored.", [])
+                   "and will be ignored.", [])
     end.
 
 %% @private since the kernel app is already booted, re-reading its config
@@ -502,10 +502,10 @@ reread_logger_config() ->
             %% -- primary config is used for settings shared across handlers
             LogLvlPrimary = proplists:get_value(logger_level, KernelCfg, all),
             {FilterDefault, Filters} =
-              case lists:keyfind(filters, 1, LogCfg) of
-                  false -> {log, []};
-                  {filters, FoundDef, FoundFilter} -> {FoundDef, FoundFilter}
-              end,
+                case lists:keyfind(filters, 1, LogCfg) of
+                    false -> {log, []};
+                    {filters, FoundDef, FoundFilter} -> {FoundDef, FoundFilter}
+                end,
             Primary = #{level => LogLvlPrimary,
                         filter_default => FilterDefault,
                         filters => Filters},
@@ -662,22 +662,22 @@ log_msg_and_abort(Message) ->
 debug_log_msg_and_abort(Message) ->
     fun(Command, {Rc, Output}) ->
             ?DEBUG("sh(~ts)~n"
-                  "failed with return code ~w and the following output:~n"
-                  "~ts", [Command, Rc, Output]),
+                   "failed with return code ~w and the following output:~n"
+                   "~ts", [Command, Rc, Output]),
             ?ABORT(Message, [])
     end.
 
 -spec log_and_abort(string(), {integer(), string()}) -> no_return().
 log_and_abort(Command, {Rc, Output}) ->
     ?ABORT("sh(~ts)~n"
-          "failed with return code ~w and the following output:~n"
-          "~ts", [Command, Rc, Output]).
+           "failed with return code ~w and the following output:~n"
+           "~ts", [Command, Rc, Output]).
 
 -spec debug_and_abort(string(), {integer(), string()}) -> no_return().
 debug_and_abort(Command, {Rc, Output}) ->
     ?DEBUG("sh(~ts)~n"
-          "failed with return code ~w and the following output:~n"
-          "~ts", [Command, Rc, Output]),
+           "failed with return code ~w and the following output:~n"
+           "~ts", [Command, Rc, Output]),
     throw(rebar_abort).
 
 port_line_to_list(Line) ->
@@ -817,7 +817,7 @@ update_code(Paths, Opts) ->
                                   %% replace_path causes problems when running
                                   %% tests in projects like erlware_commons that rebar3
                                   %% also includes
-                                  %code:replace_path(App, Path),
+                                                %code:replace_path(App, Path),
                                   code:del_path(App),
                                   code:add_patha(Path),
                                   case lists:member(soft_purge, Opts) of
@@ -903,7 +903,7 @@ arg_or_flag([ArgList|Rest], [{Task, Args}|Acc]) ->
                                         lists:reverse([Arg|Args])}|Acc]);
         %% sequence of two or more args/tasks
         [Arg, More] -> new_task([More|Rest], [{Task,
-                                              lists:reverse([Arg|Args])}|Acc]);
+                                               lists:reverse([Arg|Args])}|Acc]);
         %% single arg not terminated by a comma
         [Arg] -> arg_or_flag(Rest, [{Task, [Arg|Args]}|Acc])
     end.
@@ -916,17 +916,17 @@ maybe_ends_in_comma(H) ->
 
 get_http_vars(Scheme) ->
     OS = case os:getenv(atom_to_list(Scheme)) of
-        Str when is_list(Str) -> Str;
-        _ -> []
-    end,
+             Str when is_list(Str) -> Str;
+             _ -> []
+         end,
     GlobalConfigFile = rebar_dir:global_config(),
     Config = rebar_config:consult_file(GlobalConfigFile),
     proplists:get_value(Scheme, Config, OS).
 
 -ifdef (OTP_RELEASE).
-  -if(?OTP_RELEASE >= 23).
-    -compile({nowarn_deprecated_function, [{http_uri, decode, 1}]}).
-  -endif.
+-if(?OTP_RELEASE >= 23).
+-compile({nowarn_deprecated_function, [{http_uri, decode, 1}]}).
+-endif.
 -endif.
 
 set_httpc_options() ->
@@ -1088,11 +1088,11 @@ ssl_opts(ssl_verify_enabled, Url) ->
 
 -ifdef(no_customize_hostname_check).
 check_hostname_opt(Opts) ->
-  Opts.
+    Opts.
 -else.
 check_hostname_opt(Opts) ->
-  MatchFun = public_key:pkix_verify_hostname_match_fun(https),
-  [{customize_hostname_check, [{match_fun, MatchFun}]} | Opts].
+    MatchFun = public_key:pkix_verify_hostname_match_fun(https),
+    [{customize_hostname_check, [{match_fun, MatchFun}]} | Opts].
 -endif.
 
 -spec partial_chain(Certs) -> Res when
@@ -1127,7 +1127,7 @@ check_cert(CACerts, Cert) ->
               end, CACerts).
 
 -spec check_ssl_version() ->
-    boolean().
+          boolean().
 check_ssl_version() ->
     case application:get_key(ssl, vsn) of
         {ok, Vsn} ->
@@ -1137,7 +1137,7 @@ check_ssl_version() ->
     end.
 
 -spec get_ssl_config() ->
-      ssl_verify_disabled | ssl_verify_enabled.
+          ssl_verify_disabled | ssl_verify_enabled.
 get_ssl_config() ->
     GlobalConfigFile = rebar_dir:global_config(),
     Config = rebar_config:consult_file(GlobalConfigFile),
@@ -1183,7 +1183,7 @@ keep_suffix_search_rules(Rules) ->
     [T || {_,_,_}=T <- Rules].
 
 -spec find_source(file:filename(), file:filename(), [find_source_rule()]) ->
-        {ok, file:filename()} | {error, not_found}.
+          {ok, file:filename()} | {error, not_found}.
 find_source(Filename, Dir, Rules) ->
     try_suffix_rules(keep_suffix_search_rules(Rules), Filename, Dir).
 

@@ -47,9 +47,9 @@ do(State) ->
             case rebar_core:process_namespace(State2, FirstTaskAtom) of
                 {ok, State3, NewTask} ->
                     rebar_prv_do:do_tasks(
-                        [{atom_to_list(NewTask),FirstTaskArgs}|tl(Tasks)],
-                        State3
-                    );
+                      [{atom_to_list(NewTask),FirstTaskArgs}|tl(Tasks)],
+                      State3
+                     );
                 {error, Reason} ->
                     {error, Reason}
             end

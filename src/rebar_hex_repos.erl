@@ -56,9 +56,9 @@ get_repo_config(RepoName, State) ->
     get_repo_config(RepoName, Repos).
 
 -spec anon_repo_config(repo()) ->
-    #{api_url := _, name := _, repo_name => _, repo_organization => _,
-      repo_url := _, repo_verify => _, repo_verify_origin => _,
-      mirror_of => _}.
+	  #{api_url := _, name := _, repo_name => _, repo_organization => _,
+	    repo_url := _, repo_verify => _, repo_verify_origin => _,
+	    mirror_of => _}.
 anon_repo_config(Map) ->
     maps:with([name, repo_name, api_url, repo_url, repo_organization,
                mirror_of, repo_verify, repo_verify_origin], Map).
@@ -185,7 +185,7 @@ auth_config(State) ->
                 enoent ->
                     #{};
                 _ ->
-                    % TODO: map to an english reason
+						% TODO: map to an english reason
                     ?ABORT("Error reading repos auth config (~ts) : ~ts", [AuthFile, atom_to_list(Reason)])
             end;
         {error, {_Line, _Mod, _Term} = Err} ->

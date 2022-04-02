@@ -19,15 +19,15 @@
 -spec init(rebar_state:t()) -> {ok, rebar_state:t()}.
 init(State) ->
     Provider = providers:create([
-        {name, ?PROVIDER},
-        {module, ?MODULE},
-        {bare, true},
-        {deps, ?DEPS},
-        {example, "rebar3 new <template>"},
-        {short_desc, "Create new project from templates."},
-        {desc, info()},
-        {opts, [{force, $f, "force", undefined, "overwrite existing files"}]}
-    ]),
+				 {name, ?PROVIDER},
+				 {module, ?MODULE},
+				 {bare, true},
+				 {deps, ?DEPS},
+				 {example, "rebar3 new <template>"},
+				 {short_desc, "Create new project from templates."},
+				 {desc, info()},
+				 {opts, [{force, $f, "force", undefined, "overwrite existing files"}]}
+				]),
     State1 = rebar_state:add_provider(State, Provider),
     {ok, State1}.
 
@@ -74,11 +74,11 @@ format_error(Reason) ->
 
 list_templates(State) ->
     lists:foldl(fun({error, {consult, File, Reason}}, Acc) ->
-                    ?WARN("Error consulting template file ~ts for reason ~p",
-                          [File, Reason]),
-                    Acc
-                ;  (Tpl, Acc) ->
-                    [Tpl|Acc]
+			?WARN("Error consulting template file ~ts for reason ~p",
+			      [File, Reason]),
+			Acc
+		  ;  (Tpl, Acc) ->
+			[Tpl|Acc]
                 end, [], lists:reverse(rebar_templater:list_templates(State))).
 
 info() ->

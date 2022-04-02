@@ -16,10 +16,10 @@
 init(State) ->
     Aliases = rebar_state:get(State, alias, []),
     lists:foldl(fun({Alias, Cmds}, {ok, StateAcc}) ->
-                    case validate_provider(Alias, Cmds, State) of
-                        true -> init_alias(Alias, Cmds, StateAcc);
-                        false -> {ok, State}
-                    end
+			case validate_provider(Alias, Cmds, State) of
+			    true -> init_alias(Alias, Cmds, StateAcc);
+			    false -> {ok, State}
+			end
                 end, {ok, State}, Aliases).
 
 -dialyzer([{no_opaque, init_alias/3}, {no_return, init_alias/3}]). % warnings relate to use of opaque structures in :forms
@@ -34,15 +34,15 @@ init_alias(Alias, Cmds, State) ->
     code:load_binary(Module, "none", Bin),
 
     Provider = providers:create([
-            {name, Alias},
-            {module, Module},
-            {bare, true},
-            {deps, []},
-            {example, example(Alias)},
-            {opts, []},
-            {short_desc, desc(Cmds)},
-            {desc, desc(Cmds)}
-    ]),
+				 {name, Alias},
+				 {module, Module},
+				 {bare, true},
+				 {deps, []},
+				 {example, example(Alias)},
+				 {opts, []},
+				 {short_desc, desc(Cmds)},
+				 {desc, desc(Cmds)}
+				]),
     {ok, rebar_state:add_provider(State, Provider)}.
 
 validate_provider(Alias, Cmds, State) ->

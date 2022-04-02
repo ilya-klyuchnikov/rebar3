@@ -78,12 +78,12 @@ reset(State) ->
     CoverDir = cover_dir(State),
     CoverFiles = get_all_coverdata(CoverDir),
     F = fun(File) ->
-        case file:delete(File) of
-            {error, Reason} ->
-                ?WARN("Error deleting ~p: ~p", [Reason, File]);
-            _ -> ok
-        end
-    end,
+                case file:delete(File) of
+                    {error, Reason} ->
+                        ?WARN("Error deleting ~p: ~p", [Reason, File]);
+                    _ -> ok
+                end
+        end,
     ok = lists:foreach(F, CoverFiles),
     {ok, State}.
 
@@ -118,11 +118,11 @@ get_all_coverdata(CoverDir) ->
     ok = filelib:ensure_dir(filename:join([CoverDir, "dummy.log"])),
     {ok, Files} = rebar_utils:list_dir(CoverDir),
     rebar_utils:filtermap(fun(FileName) ->
-        case filename:extension(FileName) == ".coverdata" of
-            true  -> {true, filename:join([CoverDir, FileName])};
-            false -> false
-        end
-    end, Files).
+                                  case filename:extension(FileName) == ".coverdata" of
+                                      true  -> {true, filename:join([CoverDir, FileName])};
+                                      false -> false
+                                  end
+                          end, Files).
 
 analyze(_State, []) ->
     ?WARN("No coverdata found", []),
@@ -158,20 +158,20 @@ analysis(State, Task) ->
     ok = restore_cover_paths(State),
     Mods = cover:imported_modules(),
     Analysis = lists:map(fun(Mod) ->
-                  {ok, Answer} = cover:analyze(Mod, coverage, line),
-                  {ok, File} = analyze_to_file(Mod, State, Task),
-                  {Mod, process(Answer), File}
-              end,
-              Mods),
+                                 {ok, Answer} = cover:analyze(Mod, coverage, line),
+                                 {ok, File} = analyze_to_file(Mod, State, Task),
+                                 {Mod, process(Answer), File}
+                         end,
+                         Mods),
     true = rebar_utils:cleanup_code_path(OldPath),
     lists:sort(Analysis).
 
 restore_cover_paths(State) ->
     lists:foreach(fun(App) ->
-        AppDir = rebar_app_info:out_dir(App),
-        _ = code:add_path(filename:join([AppDir, "ebin"])),
-        _ = code:add_path(filename:join([AppDir, "test"]))
-    end, rebar_state:project_apps(State)),
+                          AppDir = rebar_app_info:out_dir(App),
+                          _ = code:add_path(filename:join([AppDir, "ebin"])),
+                          _ = code:add_path(filename:join([AppDir, "test"]))
+                  end, rebar_state:project_apps(State)),
     _ = code:add_path(filename:join([rebar_dir:base_dir(State), "test"])),
     ok.
 
@@ -219,18 +219,18 @@ format_table(Stats, CoverFiles) ->
     TotalLabel = format("total", MaxLength),
     TotalCov = format(calculate_total_string(Stats), 8),
     [io_lib:format("~ts~n~ts~n~ts~n", [Separator, Header, Separator]),
-        lists:map(fun({Mod, Coverage, _}) ->
-            Name = format(Mod, MaxLength),
-            Cov = format(percentage_string(Coverage), 8),
-            io_lib:format("  |  ~ts  |  ~ts  |~n", [Name, Cov])
-        end, Stats),
-        io_lib:format("~ts~n", [Separator]),
-        io_lib:format("  |  ~ts  |  ~ts  |~n", [TotalLabel, TotalCov]),
-        io_lib:format("~ts~n", [Separator]),
-        io_lib:format("  coverage calculated from:~n", []),
-        lists:map(fun(File) ->
-            io_lib:format("    ~ts~n", [File])
-        end, CoverFiles)].
+     lists:map(fun({Mod, Coverage, _}) ->
+                       Name = format(Mod, MaxLength),
+                       Cov = format(percentage_string(Coverage), 8),
+                       io_lib:format("  |  ~ts  |  ~ts  |~n", [Name, Cov])
+               end, Stats),
+     io_lib:format("~ts~n", [Separator]),
+     io_lib:format("  |  ~ts  |  ~ts  |~n", [TotalLabel, TotalCov]),
+     io_lib:format("~ts~n", [Separator]),
+     io_lib:format("  coverage calculated from:~n", []),
+     lists:map(fun(File) ->
+                       io_lib:format("    ~ts~n", [File])
+               end, CoverFiles)].
 
 mod_length(Mod) when is_atom(Mod) -> mod_length(atom_to_list(Mod));
 mod_length(Mod) -> length(Mod).
@@ -248,12 +248,12 @@ calculate_total_string(Stats) ->
 
 calculate_total(Stats) ->
     percentage(lists:foldl(
-        fun({_Mod, {Cov, Not}, _File}, {CovAcc, NotAcc}) ->
-            {CovAcc + Cov, NotAcc + Not}
-        end,
-        {0, 0},
-        Stats
-    )).
+                 fun({_Mod, {Cov, Not}, _File}, {CovAcc, NotAcc}) ->
+                         {CovAcc + Cov, NotAcc + Not}
+                 end,
+                 {0, 0},
+                 Stats
+                )).
 
 percentage_string(Data) -> integer_to_list(percentage(Data))++"%".
 
@@ -292,7 +292,7 @@ write_index_section(F, [{Section, DataFile, Mods}|Rest]) ->
         end,
     lists:foreach(fun(M) -> ok = file:write(F, FmtLink(M)) end, Mods),
     ok = file:write(F, ?FMT("<tr><td><strong>Total</strong></td><td>~ts</td>\n",
-                     [calculate_total_string(Mods)])),
+                            [calculate_total_string(Mods)])),
     ok = file:write(F, "</table>\n"),
     write_index_section(F, Rest).
 
@@ -302,9 +302,9 @@ maybe_fail_coverage(Analysis, State) ->
     PassRate = min_coverage(State),
     ?DEBUG("Comparing ~p to pass rate ~p", [Total, PassRate]),
     if Total >= PassRate ->
-        {ok, State}
-    ;  Total < PassRate ->
-        ?PRV_ERROR({min_coverage_failed, {PassRate, Total}})
+            {ok, State}
+      ;  Total < PassRate ->
+            ?PRV_ERROR({min_coverage_failed, {PassRate, Total}})
     end.
 
 %% fix for r15b which doesn't put the correct path in the `source` section
@@ -328,27 +328,27 @@ cover_compile(State, Dirs) ->
     ExclMods = rebar_state:get(State, cover_excl_mods, []),
     ?DEBUG("Ignoring cover compilation of modules in {cover_excl_mods, ~p}", [ExclMods]),
     lists:foreach(fun(Dir) ->
-        case file:list_dir(Dir) of
-            {ok, Files} ->
-                ?DEBUG("cover compiling ~p", [Dir]),
-                [cover_compile_file(filename:join(Dir, File))
-                 || File <- Files,
-                    filename:extension(File) == ".beam",
-                    not is_ignored(Dir, File, ExclMods)],
-                ok;
-            {error, eacces} ->
-                ?WARN("Directory ~p not readable, modules will not be included in coverage", [Dir]);
-            {error, enoent} ->
-                ?WARN("Directory ~p not found", [Dir]);
-            {error, Reason} ->
-                ?WARN("Directory ~p error ~p", [Dir, Reason])
-        end
-    end, Dirs),
+                          case file:list_dir(Dir) of
+                              {ok, Files} ->
+                                  ?DEBUG("cover compiling ~p", [Dir]),
+                                  [cover_compile_file(filename:join(Dir, File))
+                                   || File <- Files,
+                                      filename:extension(File) == ".beam",
+                                      not is_ignored(Dir, File, ExclMods)],
+                                  ok;
+                              {error, eacces} ->
+                                  ?WARN("Directory ~p not readable, modules will not be included in coverage", [Dir]);
+                              {error, enoent} ->
+                                  ?WARN("Directory ~p not found", [Dir]);
+                              {error, Reason} ->
+                                  ?WARN("Directory ~p error ~p", [Dir, Reason])
+                          end
+                  end, Dirs),
     ok.
 
 is_ignored(Dir, File, ExclMods) ->
     Ignored = lists:any(fun(Excl) ->
-                             File =:= atom_to_list(Excl) ++ ".beam"
+                                File =:= atom_to_list(Excl) ++ ".beam"
                         end,
                         ExclMods),
     Ignored andalso ?DEBUG("cover ignoring ~p ~p", [Dir, File]),

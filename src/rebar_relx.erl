@@ -37,7 +37,7 @@ do(Provider, State) ->
     RelxConfig1 = RelxMode ++ [output_dir(DefaultOutputDir, Opts),
                                {overlay_vars_values, ExtraOverlays},
                                {overlay_vars, [{base_dir, rebar_dir:base_dir(State)} | overlay_vars(Opts)]}
-                               | merge_overlays(RelxConfig)],
+                              | merge_overlays(RelxConfig)],
 
     Args = [include_erts, system_libs, vm_args, sys_config],
     RelxConfig2 = maybe_obey_command_args(RelxConfig1, Opts, Args),
@@ -45,8 +45,8 @@ do(Provider, State) ->
     {ok, RelxState_0} = rlx_config:to_state(RelxConfig2),
     XrefIgnores = rebar_state:get(State, xref_ignores, []),
     RelxState = rlx_state:filter_xref_warning(RelxState_0,
-        fun(Warnings) ->
-            rebar_prv_xref:filter_xref_results(undefined_function_calls, XrefIgnores, Warnings) end),
+                                              fun(Warnings) ->
+                                                      rebar_prv_xref:filter_xref_results(undefined_function_calls, XrefIgnores, Warnings) end),
 
     Providers = rebar_state:providers(State),
     Cwd = rebar_state:dir(State),
@@ -178,11 +178,11 @@ releases_to_build(Provider, Opts, RelxState)->
             Releases = highest_unique_releases(rlx_state:configured_releases(RelxState)),
             WantReleases = [list_to_atom(Rel) || Rel <- string:split(Filter, ",", all)],
             [
-                case proplists:lookup(Relname, Releases) of
-                    none -> erlang:error(?PRV_ERROR({release_not_found, Relname}));
-                    Rel -> Rel
-                end
-                || Relname <- WantReleases
+             case proplists:lookup(Relname, Releases) of
+                 none -> erlang:error(?PRV_ERROR({release_not_found, Relname}));
+                 Rel -> Rel
+             end
+             || Relname <- WantReleases
             ]
     end.
 
@@ -231,14 +231,14 @@ overlay_vars(Opts) ->
 
 maybe_obey_command_args(RelxConfig, Opts, Args) ->
     lists:foldl(
-        fun(Opt, Acc) ->
-                 case proplists:get_value(Opt, Opts) of
-                     undefined ->
-                         Acc;
-                     V ->
-                         lists:keystore(Opt, 1, Acc, {Opt, V})
-                 end
-        end, RelxConfig, Args).
+      fun(Opt, Acc) ->
+              case proplists:get_value(Opt, Opts) of
+                  undefined ->
+                      Acc;
+                  V ->
+                      lists:keystore(Opt, 1, Acc, {Opt, V})
+              end
+      end, RelxConfig, Args).
 
 %%
 
@@ -271,7 +271,7 @@ app_info_to_relx(#{name := Name,
 opt_spec_list() ->
     [{all, undefined, "all",  boolean,
       "If true runs the command against all configured  releases"},
-    {relname,  $n, "relname",  string,
+     {relname,  $n, "relname",  string,
       "Specify the name for the release that will be generated"},
      {relvsn, $v, "relvsn", string, "Specify the version for the release"},
      {upfrom, $u, "upfrom", string,

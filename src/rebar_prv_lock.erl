@@ -60,13 +60,13 @@ format_error(Reason) ->
 build_locks(State) ->
     AllDeps = rebar_state:lock(State),
     [begin
-        %% If source is tuple it is a source dep
-        %% e.g. {git, "git://github.com/ninenines/cowboy.git", "master"}
-        {rebar_app_info:name(Dep),
-         rebar_fetch:lock_source(Dep, State),
-         rebar_app_info:dep_level(Dep)}
+	 %% If source is tuple it is a source dep
+	 %% e.g. {git, "git://github.com/ninenines/cowboy.git", "master"}
+	 {rebar_app_info:name(Dep),
+	  rebar_fetch:lock_source(Dep, State),
+	  rebar_app_info:dep_level(Dep)}
      end || Dep <- AllDeps, not(rebar_app_info:is_checkout(Dep))].
 
 info_checkout_deps(Checkouts) ->
     [?INFO("App ~ts is a checkout dependency and cannot be locked.", [CheckoutDep])
-        || CheckoutDep <- Checkouts].
+     || CheckoutDep <- Checkouts].

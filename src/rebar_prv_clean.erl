@@ -43,17 +43,17 @@ do(State) ->
     rebar_hooks:run_all_hooks(Cwd, pre, ?PROVIDER, Providers, State1),
 
     if All; Specific =/= [] ->
-        DepsDir = rebar_dir:deps_dir(State1),
-        DepsDirs = filelib:wildcard(filename:join(DepsDir, "*")),
-        AllApps = rebar_app_discover:find_apps(DepsDirs, all, State),
-        Filter = case All of
-            true -> fun(_) -> true end;
-            false -> fun(AppInfo) -> filter_name(AppInfo, Specific) end
-        end,
-        clean_apps(State1, Providers, AllApps, Filter);
+            DepsDir = rebar_dir:deps_dir(State1),
+            DepsDirs = filelib:wildcard(filename:join(DepsDir, "*")),
+            AllApps = rebar_app_discover:find_apps(DepsDirs, all, State),
+            Filter = case All of
+                         true -> fun(_) -> true end;
+                         false -> fun(AppInfo) -> filter_name(AppInfo, Specific) end
+                     end,
+            clean_apps(State1, Providers, AllApps, Filter);
        true ->
-        ProjectApps = rebar_state:project_apps(State1),
-        clean_apps(State1, Providers, ProjectApps, fun(_) -> true end)
+            ProjectApps = rebar_state:project_apps(State1),
+            clean_apps(State1, Providers, ProjectApps, fun(_) -> true end)
     end,
 
     clean_extras(State1),

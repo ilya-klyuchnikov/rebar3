@@ -263,12 +263,12 @@ serve_from_memory(TmpDir, Binary, {pkg, _Name, _Vsn, OldHash, Hash, _RepoConfig}
                     ?DEBUG("Expected hash ~64.16.0B does not match outer checksum or inner checksum of fetched package
                            ~64.16.0B / ~64.16.0B", [RegistryChecksum, Checksum, OldChecksum]),
                      {bad_registry_checksum, RegistryChecksum, Checksum}
-            end;
-        {ok, #{outer_checksum := <<RegistryChecksum:256/big-unsigned>>}} ->
-            ok;
-        {error, Reason} ->
-            {error, {hex_tarball, Reason}}
-    end.
+                           end;
+                               {ok, #{outer_checksum := <<RegistryChecksum:256/big-unsigned>>}} ->
+                                  ok;
+                               {error, Reason} ->
+                                  {error, {hex_tarball, Reason}}
+                          end.
 
 maybe_old_registry_checksum(undefined) -> undefined;
 maybe_old_registry_checksum(Hash) -> list_to_integer(binary_to_list(Hash), 16).

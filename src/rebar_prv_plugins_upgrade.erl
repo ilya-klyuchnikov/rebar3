@@ -16,20 +16,20 @@
 -spec init(rebar_state:t()) -> {ok, rebar_state:t()}.
 init(State) ->
     State1 = rebar_state:add_provider(
-            State,
-            providers:create([
-                    {name, ?PROVIDER},
-                    {module, ?MODULE},
-                    {namespace, ?NAMESPACE},
-                    {bare, true},
-                    {deps, ?DEPS},
-                    {example, "rebar3 plugins upgrade <plugin>"},
-                    {short_desc, "Upgrade plugins"},
-                    {desc, "List or upgrade plugins. Use the -a/--all option to upgrade"
-                           " all plugins."},
-                    {opts, [{plugin, undefined, undefined, string,
-                             "Plugin to upgrade"},
-                            {all, $a, "all", undefined, "Upgrade all plugins."}]}])),
+	       State,
+	       providers:create([
+				 {name, ?PROVIDER},
+				 {module, ?MODULE},
+				 {namespace, ?NAMESPACE},
+				 {bare, true},
+				 {deps, ?DEPS},
+				 {example, "rebar3 plugins upgrade <plugin>"},
+				 {short_desc, "Upgrade plugins"},
+				 {desc, "List or upgrade plugins. Use the -a/--all option to upgrade"
+				  " all plugins."},
+				 {opts, [{plugin, undefined, undefined, string,
+					  "Plugin to upgrade"},
+					 {all, $a, "all", undefined, "Upgrade all plugins."}]}])),
     {ok, State1}.
 
 -spec do(rebar_state:t()) -> {ok, rebar_state:t()} | {error, string()}.
@@ -39,11 +39,11 @@ do(State) ->
         {true, _} -> 
             {_, LocalPluginsNames} = rebar_prv_plugins:list_local_plugins(State),
             lists:foldl(
-                fun (LocalPluginName, {ok, StateAcc}) ->
-                    upgrade(atom_to_list(LocalPluginName), StateAcc)
-                end,
-                {ok, State},
-                LocalPluginsNames);
+	      fun (LocalPluginName, {ok, StateAcc}) ->
+		      upgrade(atom_to_list(LocalPluginName), StateAcc)
+	      end,
+	      {ok, State},
+	      LocalPluginsNames);
         {false, Plugin} -> upgrade(Plugin, State)
     end.
 
@@ -51,15 +51,15 @@ do(State) ->
 format_error({not_found, Plugin}) ->
     io_lib:format("Plugin to upgrade not found: ~ts", [Plugin]);
 format_error(no_arg) -> 
-     "Specify a plugin to upgrade, or --all to upgrade them all";
+    "Specify a plugin to upgrade, or --all to upgrade them all";
 format_error(Reason) ->
     io_lib:format("~p", [Reason]).
 
 handle_args(State) -> 
-     {Args, _} = rebar_state:command_parsed_args(State),
-     All = proplists:get_value(all, Args, false),
-     Plugin = proplists:get_value(plugin, Args),
-     {All, Plugin}.
+    {Args, _} = rebar_state:command_parsed_args(State),
+    All = proplists:get_value(all, Args, false),
+    Plugin = proplists:get_value(plugin, Args),
+    {All, Plugin}.
 
 upgrade(Plugin, State) ->
     Profiles = rebar_state:current_profiles(State),
@@ -93,14 +93,14 @@ upgrade(Plugin, State) ->
 
 find_plugin(Plugin, Profiles, State) ->
     ec_lists:search(fun(Profile) ->
-                        Plugins = rebar_state:get(State, {plugins, Profile}, []) ++
-                            rebar_state:get(State, {project_plugins, Profile}, []),
-                        case rebar_utils:tup_find(list_to_atom(Plugin), Plugins) of
-                            false ->
-                                not_found;
-                            P ->
-                                {ok, P}
-                        end
+			    Plugins = rebar_state:get(State, {plugins, Profile}, []) ++
+				rebar_state:get(State, {project_plugins, Profile}, []),
+			    case rebar_utils:tup_find(list_to_atom(Plugin), Plugins) of
+				false ->
+				    not_found;
+				P ->
+				    {ok, P}
+			    end
                     end, Profiles).
 
 build_plugin(ToBuild, State) ->

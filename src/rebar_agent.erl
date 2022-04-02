@@ -133,7 +133,7 @@ terminate(_Reason, _State) ->
 
 %% @private runs the actual command and maintains the state changes
 -spec run(atom(), atom(), string(), rebar_state:t(), file:filename()) ->
-    {ok, rebar_state:t()} | {{error, term()}, rebar_state:t()}.
+	  {ok, rebar_state:t()} | {{error, term()}, rebar_state:t()}.
 run(Namespace, Command, StrArgs, RState, Cwd) ->
     try
         case rebar_dir:get_cwd() of
@@ -159,9 +159,9 @@ run(Namespace, Command, StrArgs, RState, Cwd) ->
         end
     catch
         ?WITH_STACKTRACE(Type, Reason, Stacktrace)
-            ?DIAGNOSTIC("Agent Stacktrace: ~p", [Stacktrace]),
-            {{error, {Type, Reason}}, RState}
-    end.
+	?DIAGNOSTIC("Agent Stacktrace: ~p", [Stacktrace]),
+	{{error, {Type, Reason}}, RState}
+	end.
 
 %% @private function to display a warning for the feature only once
 -spec maybe_show_warning(#state{}) -> #state{}.
@@ -181,8 +181,8 @@ refresh_paths(RState) ->
     ShellOpts = rebar_state:get(RState, shell, []),
     ShellBlacklist = proplists:get_value(app_reload_blacklist, ShellOpts, []),
     Blacklist = lists:usort(
-        application:get_env(rebar, refresh_paths_blacklist, ShellBlacklist)
-        ++ [rebar, erlware_commons, providers, cf, cth_readable]),
+		  application:get_env(rebar, refresh_paths_blacklist, ShellBlacklist)
+		  ++ [rebar, erlware_commons, providers, cf, cth_readable]),
     %% Similar to rebar_utils:update_code/1, but also forces a reload
     %% of used modules. Also forces to reload all of ebin/ instead
     %% of just the modules in the .app file, because 'extra_src_dirs'
@@ -228,7 +228,7 @@ refresh_path_blacklisted(Path) ->
     Modules = [M || M <- mods_in_path(Path), not is_loaded(M)],
     ?DIAGNOSTIC("ensure ~p loaded", [Modules]),
     code:add_pathz(Path), % in case the module is only in a new non-clashing path
-     _ = [code:ensure_loaded(M) || M <- Modules],
+    _ = [code:ensure_loaded(M) || M <- Modules],
     ok.
 
 %% @private fetch module names from a given directory that contains
@@ -250,20 +250,20 @@ parse_refresh_paths([all_deps | RefreshPaths], RState, Acc) ->
     parse_refresh_paths(RefreshPaths, RState, Paths ++ Acc);
 parse_refresh_paths([project_apps | RefreshPaths], RState, Acc) ->
     Paths = [filename:join([rebar_app_info:out_dir(App), "ebin"])
-        || App <- rebar_state:project_apps(RState)],
+	     || App <- rebar_state:project_apps(RState)],
     parse_refresh_paths(RefreshPaths, RState, Paths ++ Acc);
 parse_refresh_paths([test | RefreshPaths], RState, Acc) ->
     Paths = [filename:join([rebar_app_info:out_dir(App), "test"])
-        || App <- rebar_state:project_apps(RState)],
+	     || App <- rebar_state:project_apps(RState)],
     parse_refresh_paths(RefreshPaths, RState, Paths ++ Acc);
 parse_refresh_paths([RefreshPath0 | RefreshPaths], RState, Acc) when is_list(RefreshPath0) ->
     case filelib:is_dir(RefreshPath0) of
         true ->
             RefreshPath0 =
-            case filename:basename(RefreshPath0) of
-                "ebin" -> RefreshPath0;
-                _ -> filename:join([RefreshPath0, "ebin"])
-            end,
+		case filename:basename(RefreshPath0) of
+		    "ebin" -> RefreshPath0;
+		    _ -> filename:join([RefreshPath0, "ebin"])
+		end,
             parse_refresh_paths(RefreshPaths, RState, [RefreshPath0 | Acc]);
         false ->
             parse_refresh_paths(RefreshPaths, RState, Acc)
@@ -278,10 +278,10 @@ parse_refresh_paths([], _RState, Acc) ->
 -spec refresh_state(rebar_state:t(), file:filename()) -> rebar_state:t().
 refresh_state(RState, _Dir) ->
     lists:foldl(
-        fun(F, State) -> F(State) end,
-        rebar3:init_config(),
-        [fun(S) -> rebar_state:apply_profiles(S, rebar_state:current_profiles(RState)) end]
-    ).
+      fun(F, State) -> F(State) end,
+      rebar3:init_config(),
+      [fun(S) -> rebar_state:apply_profiles(S, rebar_state:current_profiles(RState)) end]
+     ).
 
 %% @private takes a list of modules and reloads them
 -spec reload_modules([module()]) -> term().
@@ -297,13 +297,13 @@ is_changed(M) ->
     try
         module_vsn(M:module_info(attributes)) =/= module_vsn(code:get_object_code(M))
     catch _:_ ->
-        false
+	    false
     end.
 
 module_vsn({M, Beam, _Fn}) ->
-    % Because the vsn can set by -vsn(X) in module.
-    % So didn't use beam_lib:version/1 to get the vsn.
-    % So if set -vsn(X) in module, it will always reload the module.
+						% Because the vsn can set by -vsn(X) in module.
+						% So didn't use beam_lib:version/1 to get the vsn.
+						% So if set -vsn(X) in module, it will always reload the module.
     {ok, {M, <<Vsn:128>>}} = beam_lib:md5(Beam),
     Vsn;
 module_vsn(Attrs) when is_list(Attrs) ->
@@ -320,29 +320,29 @@ reload_modules(Modules, true) ->
         {error, ModRsns} ->
             Blacklist =
                 lists:foldr(fun({ModError, Error}, Acc) ->
-                    case Error of
-                        % perhaps cover other cases of failure?
-                        on_load_not_allowed ->
-                            reload_modules([ModError], false),
-                            [ModError|Acc];
-                        _ ->
-                            ?DIAGNOSTIC("Module ~p failed to atomic load because ~p", [ModError, Error]),
-                            [ModError|Acc]
-                    end
-                end,
-                [], ModRsns
-            ),
+				    case Error of
+						% perhaps cover other cases of failure?
+					on_load_not_allowed ->
+					    reload_modules([ModError], false),
+					    [ModError|Acc];
+					_ ->
+					    ?DIAGNOSTIC("Module ~p failed to atomic load because ~p", [ModError, Error]),
+					    [ModError|Acc]
+				    end
+			    end,
+			    [], ModRsns
+			   ),
             reload_modules(Modules -- Blacklist, true)
     end;
 reload_modules(Modules, false) ->
     %% Older versions, use a more ad-hoc mechanism.
     lists:foreach(fun(M) ->
-            code:delete(M),
-            code:purge(M),
-            case code:load_file(M) of
-                {module, M} -> ok;
-                {error, Error} ->
-                    ?DIAGNOSTIC("Module ~p failed to load because ~p", [M, Error])
-            end
-        end, Modules
-    ).
+			  code:delete(M),
+			  code:purge(M),
+			  case code:load_file(M) of
+			      {module, M} -> ok;
+			      {error, Error} ->
+				  ?DIAGNOSTIC("Module ~p failed to load because ~p", [M, Error])
+			  end
+		  end, Modules
+		 ).

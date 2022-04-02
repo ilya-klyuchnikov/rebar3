@@ -9,8 +9,8 @@
 -include_lib("providers/include/providers.hrl").
 
 -spec run_all_hooks(file:filename_all(), pre | post,
-                   atom() | {atom(), atom()} | string(),
-                   [providers:t()], rebar_app_info:t(), rebar_state:t()) -> rebar_app_info:t().
+		    atom() | {atom(), atom()} | string(),
+		    [providers:t()], rebar_app_info:t(), rebar_state:t()) -> rebar_app_info:t().
 run_all_hooks(Dir, Type, Command, Providers, AppInfo, State) ->
     ?DEBUG("Running hooks for ~p in app ~ts (~ts) with configuration:",
            [Command, rebar_app_info:name(AppInfo), Dir]),
@@ -63,7 +63,7 @@ run_provider_hooks_(Dir, Type, Command, Providers, TypeHooks, State) ->
             State0 = rebar_state:command_parsed_args(
                        rebar_state:command_args(State, []),
                        {[], []}
-            ),
+		      ),
             State1 = rebar_state:providers(rebar_state:dir(State0, Dir), Providers++Providers1),
             ?DEBUG("\t{provider_hooks, [{~p, ~p}]}.",
                    [Type, HookProviders]),
@@ -90,12 +90,12 @@ run_hooks(Dir, Type, Command, Opts, State) ->
         Hooks ->
             Env = rebar_env:create_env(State, Opts),
             CommandHooks = lists:filter(
-                fun({_, C, _}) when C =:= Command -> true;
-                   ({C, _}) when C =:= Command -> true;
-                   (_) -> false
-                end,
-                Hooks
-            ),
+			     fun({_, C, _}) when C =:= Command -> true;
+				({C, _}) when C =:= Command -> true;
+				(_) -> false
+			     end,
+			     Hooks
+			    ),
             ?DEBUG("\t{~p, ~p}.",
                    [Type, CommandHooks]),
             lists:foreach(fun(Hook) -> apply_hook(Dir, Env, Hook) end, CommandHooks)

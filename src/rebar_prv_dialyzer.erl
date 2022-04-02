@@ -42,50 +42,50 @@ init(State) ->
 
 desc() ->
     short_desc() ++ "\n"
-    "\n"
-    "This command will build, and keep up-to-date, a suitable PLT and will use "
-    "it to carry out success typing analysis on the current project.\n"
-    "\n"
-    "The following (optional) configurations can be added to a `proplist` of "
-    "options `dialyzer` in rebar.config:\n"
-    "`warnings` - a list of dialyzer warnings\n"
-    "`get_warnings` - display warnings when altering a PLT file (boolean)\n"
-    "`plt_apps` - the strategy for determining the applications which included "
-    "in the PLT file, `top_level_deps` to include just the direct dependencies "
-    "or `all_deps` to include all nested dependencies "
-    "or `all_apps` to include all project apps and nested dependencies*\n"
-    "`plt_extra_apps` - a list of extra applications to include in the PLT "
-    "file\n"
-    "`plt_extra_mods` - a list of extra modules to includes in the PLT file\n"
-    "`plt_location` - the location of the PLT file, `local` to store in the "
-    "profile's base directory (default) or a custom directory.\n"
-    "`plt_prefix` - the prefix to the PLT file, defaults to \"rebar3\"**\n"
-    "`base_plt_apps` - a list of applications to include in the base "
-    "PLT file***\n"
-    "`base_plt_mods` - a list of modules to include in the base "
-    "PLT file***\n"
-    "`base_plt_location` - the location of base PLT file, `global` to store in "
-    "$HOME/.cache/rebar3 (default) or  a custom directory***\n"
-    "`base_plt_prefix` - the prefix to the base PLT file, defaults to "
-    "\"rebar3\"** ***\n"
-    "`exclude_apps` - a list of applications to exclude from PLT files and "
-    "success typing analysis, `plt_extra_mods` and `base_plt_mods` can add "
-    "modules from excluded applications\n"
-    "`exclude_mods` - a list of modules to exclude from PLT files and "
-    "success typing analysis\n"
-    "`output_format` - configure whether the dialyzer_warnings file will have "
-    "the `raw` or `formatted` output\n"
-    "\n"
-    "For example, to warn on unmatched returns: \n"
-    "{dialyzer, [{warnings, [unmatched_returns]}]}.\n"
-    "\n"
-    "*The direct dependent applications are listed in `applications` and "
-    "`included_applications` of their .app files.\n"
-    "**PLT files are named \"<prefix>_<otp_release>_plt\".\n"
-    "***The base PLT is a PLT containing the core applications often required "
-    "for a project's PLT. One base PLT is created per OTP version and "
-    "stored in `base_plt_location`. A base PLT is used to build project PLTs."
-    "\n".
+        "\n"
+        "This command will build, and keep up-to-date, a suitable PLT and will use "
+        "it to carry out success typing analysis on the current project.\n"
+        "\n"
+        "The following (optional) configurations can be added to a `proplist` of "
+        "options `dialyzer` in rebar.config:\n"
+        "`warnings` - a list of dialyzer warnings\n"
+        "`get_warnings` - display warnings when altering a PLT file (boolean)\n"
+        "`plt_apps` - the strategy for determining the applications which included "
+        "in the PLT file, `top_level_deps` to include just the direct dependencies "
+        "or `all_deps` to include all nested dependencies "
+        "or `all_apps` to include all project apps and nested dependencies*\n"
+        "`plt_extra_apps` - a list of extra applications to include in the PLT "
+        "file\n"
+        "`plt_extra_mods` - a list of extra modules to includes in the PLT file\n"
+        "`plt_location` - the location of the PLT file, `local` to store in the "
+        "profile's base directory (default) or a custom directory.\n"
+        "`plt_prefix` - the prefix to the PLT file, defaults to \"rebar3\"**\n"
+        "`base_plt_apps` - a list of applications to include in the base "
+        "PLT file***\n"
+        "`base_plt_mods` - a list of modules to include in the base "
+        "PLT file***\n"
+        "`base_plt_location` - the location of base PLT file, `global` to store in "
+        "$HOME/.cache/rebar3 (default) or  a custom directory***\n"
+        "`base_plt_prefix` - the prefix to the base PLT file, defaults to "
+        "\"rebar3\"** ***\n"
+        "`exclude_apps` - a list of applications to exclude from PLT files and "
+        "success typing analysis, `plt_extra_mods` and `base_plt_mods` can add "
+        "modules from excluded applications\n"
+        "`exclude_mods` - a list of modules to exclude from PLT files and "
+        "success typing analysis\n"
+        "`output_format` - configure whether the dialyzer_warnings file will have "
+        "the `raw` or `formatted` output\n"
+        "\n"
+        "For example, to warn on unmatched returns: \n"
+        "{dialyzer, [{warnings, [unmatched_returns]}]}.\n"
+        "\n"
+        "*The direct dependent applications are listed in `applications` and "
+        "`included_applications` of their .app files.\n"
+        "**PLT files are named \"<prefix>_<otp_release>_plt\".\n"
+        "***The base PLT is a PLT containing the core applications often required "
+        "for a project's PLT. One base PLT is created per OTP version and "
+        "stored in `base_plt_location`. A base PLT is used to build project PLTs."
+        "\n".
 
 short_desc() ->
     "Run the Dialyzer analyzer on the project.".
@@ -219,15 +219,15 @@ proj_plt_files(State) ->
 
 proj_apps(State) ->
     [ec_cnv:to_atom(rebar_app_info:name(App)) ||
-     App <- rebar_state:project_apps(State)].
+        App <- rebar_state:project_apps(State)].
 
 proj_plt_apps(State) ->
     Apps = rebar_state:project_apps(State),
     DepApps = lists:flatmap(
-               fun(App) ->
-                       rebar_app_info:applications(App) ++
-                           rebar_app_info:included_applications(App)
-               end, Apps),
+                fun(App) ->
+                        rebar_app_info:applications(App) ++
+                            rebar_app_info:included_applications(App)
+                end, Apps),
     ProjApps = proj_apps(State),
     case get_config(State, plt_apps, top_level_deps) of
         top_level_deps ->
@@ -304,17 +304,17 @@ extras_files(BaseDir, [ExtraDir | Rest], Acc) ->
 
 extra_files(AppName, ExtraDirs) ->
     lists:foldl(
-        fun(ExtraDir, Files) ->
-            merge_files(Files, ebin_files(filename:join(code:lib_dir(AppName), ExtraDir)))
-        end,
-        dict:new(),
-        ExtraDirs
-    ).
+      fun(ExtraDir, Files) ->
+              merge_files(Files, ebin_files(filename:join(code:lib_dir(AppName), ExtraDir)))
+      end,
+      dict:new(),
+      ExtraDirs
+     ).
 
 merge_files(Files1, Files2) ->
     Duplicate = fun(Mod, File1, File2) ->
                         throw({duplicate_module, Mod, File1, File2})
-               end,
+                end,
     dict:merge(Duplicate, Files1, Files2).
 
 mods_files(Mods, SkipMods, Files) ->
@@ -326,7 +326,7 @@ mods_files(Mods, SkipMods, Files) ->
                          false ->
                              dict:update(Mod, Keep, mod_file(Mod), Acc)
                      end
-          end,
+             end,
     Files2 = lists:foldl(Ensure, Files, Mods),
     lists:foldl(fun dict:erase/2, Files2, SkipMods).
 
@@ -341,9 +341,9 @@ read_plt(_State, Plt) ->
     Vsn = dialyzer_version(),
     case plt_files(Plt) of
         {ok, Files} when Vsn < {2, 9, 0} ->
-            % Before dialyzer-2.9 (OTP 18.3) removing a beam file from the PLT
-            % that no longer exists would crash. Therefore force a rebuild of
-            % PLT if any files no longer exist.
+                                                % Before dialyzer-2.9 (OTP 18.3) removing a beam file from the PLT
+                                                % that no longer exists would crash. Therefore force a rebuild of
+                                                % PLT if any files no longer exist.
             read_plt_files(Plt, Files);
         {ok, _} = Result when Vsn >= {2, 9, 0} ->
             Result;
@@ -465,9 +465,9 @@ build_plt(State, Plt, _, []) ->
     Opts = [{get_warnings, false},
             {output_plt, Plt},
             {apps, [erts]}],
-    % Create a PLT with erts files and then remove erts files to be left with an
-    % empty PLT. Dialyzer will crash when trying to build a PLT with an empty
-    % file list.
+                                                % Create a PLT with erts files and then remove erts files to be left with an
+                                                % empty PLT. Dialyzer will crash when trying to build a PLT with an empty
+                                                % file list.
     _ = dialyzer:run([{analysis_type, plt_build} | Opts]),
     _ = dialyzer:run([{analysis_type, plt_remove}, {init_plt, Plt} | Opts]),
     {0, State};
@@ -553,7 +553,7 @@ run_dialyzer(State, Opts, Output) ->
 
 legacy_warnings(Warnings) ->
     case dialyzer_version() of
-       TupleVsn when TupleVsn < {2, 8, 0} ->
+        TupleVsn when TupleVsn < {2, 8, 0} ->
             [Warning || Warning <- Warnings, Warning =/= unknown];
         _ ->
             Warnings
@@ -608,8 +608,8 @@ get_config(State, Key, Default) ->
 debug_info(State) ->
     Config = rebar_state:get(State, erl_opts, []),
     proplists:get_value(debug_info, Config, false) =/= false orelse
-    proplists:get_value(debug_info_key, Config, false) =/= false orelse
-    proplists:get_value(encrypt_debug_info, Config, false) =/= false.
+        proplists:get_value(debug_info_key, Config, false) =/= false orelse
+        proplists:get_value(encrypt_debug_info, Config, false) =/= false.
 
 -spec collect_nested_dependent_apps([atom()], rebar_state:t()) -> [atom()].
 collect_nested_dependent_apps(RootApps, State) ->
@@ -619,12 +619,12 @@ collect_nested_dependent_apps(RootApps, State) ->
 -spec collect_nested_dependent_apps([atom()], rebar_set(), rebar_state:t()) -> rebar_set().
 collect_nested_dependent_apps(RootApps, Init, State) ->
     lists:foldl(
-        fun (App, Seen) ->
-                collect_nested_dependent_app(App, Seen, State)
-        end,
-        Init,
-        RootApps
-    ).
+      fun (App, Seen) ->
+              collect_nested_dependent_app(App, Seen, State)
+      end,
+      Init,
+      RootApps
+     ).
 
 
 -spec collect_nested_dependent_app(atom(), rebar_set(), rebar_state:t()) -> rebar_set().

@@ -28,7 +28,7 @@ init(State) ->
                                                                {short_desc, "Display a list of tasks or help for a given task or subtask."},
                                                                {desc, "Display a list of tasks or help for a given task or subtask."},
                                                                {opts, [
-                                                                      {help_task, undefined, undefined, string, "Task to print help for."}
+                                                                       {help_task, undefined, undefined, string, "Task to print help for."}
                                                                       ]}])),
     {ok, State1}.
 

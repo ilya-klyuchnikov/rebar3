@@ -70,8 +70,8 @@ main(Args) ->
             handle_error(Error, [])
     catch
         ?WITH_STACKTRACE(_,Error,Stacktrace)
-            handle_error(Error, Stacktrace)
-    end.
+        handle_error(Error, Stacktrace)
+        end.
 
 %% @doc Erlang-API entry point
 -spec run(rebar_state:t(), [string()]) -> {ok, rebar_state:t()} | {error, term()}.
@@ -115,7 +115,7 @@ run(RawArgs) ->
 %% From here on the module's role is a shared path here to finish
 %% up setting the environment for the run.
 -spec run_aux(rebar_state:t(), [string()]) ->
-    {ok, rebar_state:t()} | {error, term()}.
+          {ok, rebar_state:t()} | {error, term()}.
 run_aux(State, RawArgs) ->
     io:setopts([{encoding, unicode}]),
     %% Profile override; can only support one profile
@@ -161,11 +161,11 @@ run_aux(State, RawArgs) ->
                              filename:join(filename:absname(rebar_state:dir(State3)), BaseDir)),
 
     State5 = case os:getenv("REBAR_CACHE_DIR") of
-                false ->
-                    State4;
-                CachePath ->
-                    rebar_state:set(State4, global_rebar_dir, CachePath)
-            end,
+                 false ->
+                     State4;
+                 CachePath ->
+                     rebar_state:set(State4, global_rebar_dir, CachePath)
+             end,
 
     {ok, Providers} = application:get_env(rebar, providers),
     %% Providers can modify profiles stored in opts, so set default after initializing providers
@@ -259,10 +259,10 @@ init_config() ->
 parse_args([]) ->
     parse_args(["help"]);
 parse_args([H | Rest]) when H =:= "-h"
-                          ; H =:= "--help" ->
+                            ; H =:= "--help" ->
     parse_args(["help" | Rest]);
 parse_args([H | Rest]) when H =:= "-v"
-                          ; H =:= "--version" ->
+                            ; H =:= "--version" ->
     parse_args(["version" | Rest]);
 parse_args([Task | RawRest]) ->
     {list_to_atom(Task), RawRest}.
@@ -297,7 +297,7 @@ log_level() ->
                 _ ->
                     rebar_log:diagnostic_level()
             end;
-         _ ->
+        _ ->
             rebar_log:error_level()
     end.
 
@@ -325,10 +325,10 @@ set_global_flag(State, Options, Flag) ->
 -spec global_option_spec_list() -> [{atom(), char(), string(), atom(), string()}, ...].
 global_option_spec_list() ->
     [
-    %% {Name,  ShortOpt,  LongOpt,    ArgSpec,   HelpMsg}
-    {help,     $h,        "help",     undefined, "Print this help."},
-    {version,  $v,        "version",  undefined, "Show version information."},
-    {task,     undefined, undefined,  string,    "Task to run."}
+     %% {Name,  ShortOpt,  LongOpt,    ArgSpec,   HelpMsg}
+     {help,     $h,        "help",     undefined, "Print this help."},
+     {version,  $v,        "version",  undefined, "Show version information."},
+     {task,     undefined, undefined,  string,    "Task to run."}
     ].
 
 %% @private translate unhandled errors and internal return codes into proper
@@ -396,7 +396,7 @@ ensure_running(App, Caller) ->
             %% and shut things down manually.
             Log = ec_cmd_log:new(warn, Caller),
             ec_cmd_log:error(Log, "Rebar dependency ~p could not be loaded "
-                                  "for reason ~p~n", [App, Reason]),
+                             "for reason ~p~n", [App, Reason]),
             throw(rebar_abort)
     end.
 
@@ -406,11 +406,11 @@ state_from_global_config(Config, GlobalConfigFile) ->
     GlobalConfigTmp = rebar_state:new(GlobalConfigTerms),
 
     GlobalConfig = case os:getenv("REBAR_CACHE_DIR") of
-                false ->
-                    GlobalConfigTmp;
-                CachePath ->
-                    rebar_state:set(GlobalConfigTmp, global_rebar_dir, CachePath)
-            end,
+                       false ->
+                           GlobalConfigTmp;
+                       CachePath ->
+                           rebar_state:set(GlobalConfigTmp, global_rebar_dir, CachePath)
+                   end,
 
     %% We don't want to worry about global plugin install state effecting later
     %% usage. So we throw away the global profile state used for plugin install.
@@ -449,8 +449,8 @@ test_state(State) ->
     Extras = rebar_opts:get(Opts, extra_src_dirs, []),
     ExtrasTest = proplists:get_value(extra_src_dirs, ProfileOpts, []),
     IsDefined = lists:any(fun({"test", _}) -> true
-                          ;  ("test") -> true
-                          ;  (_) -> false
+                            ;  ("test") -> true
+                            ;  (_) -> false
                           end, Extras ++ ExtrasTest),
     case IsDefined of
         true -> [];
@@ -462,8 +462,8 @@ safe_define_test_macro(Opts) ->
     %% defining a compile macro twice results in an exception so
     %% make sure 'TEST' is only defined once
     case test_defined(Opts) of
-       true  -> Opts;
-       false -> [{d, 'TEST'}|Opts]
+        true  -> Opts;
+        false -> [{d, 'TEST'}|Opts]
     end.
 
 -spec test_defined([{d, atom()} | {d, atom(), term()} | term()]) -> boolean().

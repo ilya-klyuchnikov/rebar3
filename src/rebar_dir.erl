@@ -262,10 +262,10 @@ extra_src_dirs(Opts, Default) ->
 %% @private agnostic version of src_dirs and extra_src_dirs.
 src_dirs(Type, Opts, Default) ->
     lists:usort([
-        case D0 of
-            {D,_} -> rebar_file_utils:normalize_relative_path(D);
-            _ -> rebar_file_utils:normalize_relative_path(D0)
-        end || D0 <- raw_src_dirs(Type,Opts,Default)]).
+		 case D0 of
+		     {D,_} -> rebar_file_utils:normalize_relative_path(D);
+		     _ -> rebar_file_utils:normalize_relative_path(D0)
+		 end || D0 <- raw_src_dirs(Type,Opts,Default)]).
 
 %% @private extracts the un-formatted src_dirs or extra_src_dirs
 %% options as configured.
@@ -285,7 +285,7 @@ all_src_dirs(Opts) -> all_src_dirs(Opts, [], []).
 %% @doc returns all the source directories (`src_dirs' and
 %% `extra_src_dirs') while being able to configure defaults for both.
 -spec all_src_dirs(rebar_dict(), list(file:filename_all()), list(file:filename_all())) ->
-    list(file:filename_all()).
+	  list(file:filename_all()).
 all_src_dirs(Opts, SrcDefault, ExtraDefault) ->
     lists:usort(src_dirs(Opts, SrcDefault) ++ extra_src_dirs(Opts, ExtraDefault)).
 
@@ -347,11 +347,11 @@ format_source_file_name(Path) ->
 format_source_file_name(Path, Opts) ->
     Type = case rebar_opts:get(Opts, compiler_source_format,
                                ?DEFAULT_COMPILER_SOURCE_FORMAT) of
-        V when V == absolute; V == relative; V == build ->
-            V;
-        Other ->
-            warn_source_format_once(Other)
-    end,
+	       V when V == absolute; V == relative; V == build ->
+		   V;
+	       Other ->
+		   warn_source_format_once(Other)
+	   end,
     case Type of
         absolute -> resolve_linked_source(Path);
         build -> Path;

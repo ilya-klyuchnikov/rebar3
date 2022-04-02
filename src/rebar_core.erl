@@ -38,7 +38,7 @@
 %% `do' and `as' are implicitly reserved here, barring them from
 %% being used as other commands or namespaces.
 -spec init_command(rebar_state:t(), atom()) ->
-    {ok, rebar_state:t()} | {error, term()}.
+          {ok, rebar_state:t()} | {error, term()}.
 init_command(State, do) ->
     process_command(rebar_state:namespace(State, default), do);
 init_command(State, as) ->
@@ -58,7 +58,7 @@ init_command(State, Command) ->
 %% The command to run is returned last; for namespaces, some
 %% magic is done implicitly calling `do' as an indirect dispatcher.
 -spec process_namespace(rebar_state:t(), atom()) ->
-    {error, term()} | {ok, rebar_state:t(), atom()}.
+          {error, term()} | {ok, rebar_state:t(), atom()}.
 process_namespace(_State, as) ->
     {error, "Namespace 'as' is forbidden"};
 process_namespace(State, Command) ->
@@ -85,7 +85,7 @@ process_namespace(State, Command) ->
 %% The function also takes care of expanding a provider to its
 %% dependencies in the proper order.
 -spec process_command(rebar_state:t(), atom()) ->
-    {ok, rebar_state:t()} | {error, string()} | {error, {module(), any()}}.
+          {ok, rebar_state:t()} | {error, string()} | {error, {module(), any()}}.
 process_command(State, Command) ->
     %% ? rebar_prv_install_deps:setup_env(State),
     Providers = rebar_state:providers(State),
@@ -133,7 +133,7 @@ process_command(State, Command) ->
 %% has been returned, run them one after the other, while piping
 %% the state from the first into the next one.
 -spec do([{atom(), atom()}], rebar_state:t()) ->
-    {ok, rebar_state:t()} | {error, string()} | {error, {module(), any()}}.
+          {ok, rebar_state:t()} | {error, string()} | {error, {module(), any()}}.
 do([], State) ->
     {ok, State};
 do([ProviderName | Rest], State) ->
@@ -142,15 +142,15 @@ do([ProviderName | Rest], State) ->
     %% as a tuple {Namespace, Name}, otherwise not. Handle them
     %% on a per-need basis.
     Provider = case ProviderName of
-        {Namespace, Name} ->
-            providers:get_provider(Name
-                                  ,rebar_state:providers(State)
-                                  ,Namespace);
-        _ ->
-            providers:get_provider(ProviderName
-                                  ,rebar_state:providers(State)
-                                  ,rebar_state:namespace(State))
-    end,
+                   {Namespace, Name} ->
+                       providers:get_provider(Name
+                                             ,rebar_state:providers(State)
+                                             ,Namespace);
+                   _ ->
+                       providers:get_provider(ProviderName
+                                             ,rebar_state:providers(State)
+                                             ,rebar_state:namespace(State))
+               end,
 
     try providers:do(Provider, State) of
         {ok, State1} ->
@@ -159,14 +159,14 @@ do([ProviderName | Rest], State) ->
             {error, Error}
     catch
         ?WITH_STACKTRACE(error,undef,Stack)
-            case Stack of
-                [{ProviderName, do, [_], _}|_] ->
-                    %% This should really only happen if a plugin provider doesn't export do/1
-                    ?DEBUG("Undefined call to provider's do/1 function:~n~p", [Stack]),
-                    ?PRV_ERROR({bad_provider_namespace, ProviderName});
-                _ -> % re-raise
-                    erlang:raise(error, undef, Stack)
-            end;
+        case Stack of
+            [{ProviderName, do, [_], _}|_] ->
+                %% This should really only happen if a plugin provider doesn't export do/1
+                ?DEBUG("Undefined call to provider's do/1 function:~n~p", [Stack]),
+                ?PRV_ERROR({bad_provider_namespace, ProviderName});
+            _ -> % re-raise
+                erlang:raise(error, undef, Stack)
+        end;
         error:{badrecord,provider} ->
             {error, ProviderName}
     end.

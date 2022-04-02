@@ -25,7 +25,7 @@
       Opts :: [Opt, ...],
       Opt :: {includes, [file:filename_all()]}
            | {macros, [file:filename_all()]},
-                      %% following are all required, OTP-18 don't like it though
+      %% following are all required, OTP-18 don't like it though
       Attributes :: #{include => [file:filename_all()],
                       missing_include_file => [file:filename_all()],
                       missing_include_lib => [file:filename_all()],
@@ -76,11 +76,11 @@ resolve_source(Name, Dirs) when is_list(Name) ->
     gen_server:call(?MODULE, {resolve, Name, Dirs}, infinity).
 
 -record(state, {
-    %% filesystem cache, denormalised
-    fs = #{} :: #{file:filename_all() => [file:filename_all()]},
-    %% map of module name => abs path
-    resolved = #{} :: #{file:filename_all() => file:filename_all()}
-}).
+		%% filesystem cache, denormalised
+		fs = #{} :: #{file:filename_all() => [file:filename_all()]},
+		%% map of module name => abs path
+		resolved = #{} :: #{file:filename_all() => file:filename_all()}
+	       }).
 
 init([]) ->
     {ok, #state{}}.
@@ -125,24 +125,24 @@ list_directory(Dir, Cache) ->
                 {ok, DirFiles} ->
                     %% create a full list of *.erl files under Dir.
                     {NewFs, Files} = lists:foldl(
-                        fun (File, {DirCache, Files} = Acc) ->
-                            FullName = filename:join(Dir, File),
-                            case filelib:is_dir(FullName) of
-                                true ->
-                                    %% We assume the include paths carry all recursive directories
-                                    %% so we don't need this resolution to be recursive.
-                                    Acc;
-                                false ->
-                                    %% ignore all but *.erl files
-                                    case filename:extension(File) =:= ".erl" of
-                                        true ->
-                                            {DirCache, [{Dir, File} | Files]};
-                                        false ->
-                                            Acc
-                                    end
-                            end
-                        end,
-                        {Cache, []}, DirFiles),
+				       fun (File, {DirCache, Files} = Acc) ->
+					       FullName = filename:join(Dir, File),
+					       case filelib:is_dir(FullName) of
+						   true ->
+						       %% We assume the include paths carry all recursive directories
+						       %% so we don't need this resolution to be recursive.
+						       Acc;
+						   false ->
+						       %% ignore all but *.erl files
+						       case filename:extension(File) =:= ".erl" of
+							   true ->
+							       {DirCache, [{Dir, File} | Files]};
+							   false ->
+							       Acc
+						       end
+					       end
+				       end,
+				       {Cache, []}, DirFiles),
                     {NewFs#{Dir => Files}, Files};
                 {error, Reason} ->
                     ?DIAGNOSTIC("Failed to list ~s, ~p", [Dir, Reason]),
@@ -268,11 +268,11 @@ split_opts(Opts) ->
     %% Extra Opts are options we added to palliate to issues we had
     %% with resolving include_libs and other things in EPP.
     lists:partition(
-        fun({OptName, _}) ->
-            not lists:member(OptName, [include_libs, parse_transforms])
-        end,
-        Opts
-    ).
+      fun({OptName, _}) ->
+	      not lists:member(OptName, [include_libs, parse_transforms])
+      end,
+      Opts
+     ).
 
 find_include_with_opts(Path, Opts) ->
     InclPaths = proplists:get_value(include_libs, Opts, []),

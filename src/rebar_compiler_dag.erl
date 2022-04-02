@@ -14,10 +14,10 @@
 -type critical_meta() :: term().
 
 -record(dag, {vsn = ?DAG_VSN :: pos_integer(),
-    meta :: critical_meta(),
-    vtab :: notable | [tuple()],
-    etab :: notable | [tuple()],
-    ntab :: notable | [tuple()]}).
+	      meta :: critical_meta(),
+	      vtab :: notable | [tuple()],
+	      etab :: notable | [tuple()],
+	      ntab :: notable | [tuple()]}).
 
 -type dag() :: digraph:graph().
 
@@ -42,7 +42,7 @@ init(Dir, Compiler, Label, CritMeta) ->
 %% @doc Quickly validate whether a DAG exists by validating its file name,
 %% version, and CritMeta data, without attempting to actually build it.
 -spec status(file:filename_all(), atom(), string() | undefined, critical_meta()) ->
-    valid | bad_format | bad_vsn | bad_meta | not_found.
+	  valid | bad_format | bad_vsn | bad_meta | not_found.
 status(Dir, Compiler, Label, CritMeta) ->
     File = dag_file(Dir, Compiler, Label),
     case file:read_file(File) of
@@ -75,7 +75,7 @@ prune(G, SrcExt, ArtifactExt, Sources, AppPaths) ->
     %% In the process, prune header files - those don't have ArtifactExt
     %%  extension - using side effect in is_deleted_source/5.
     case [Del || Del <- (digraph:vertices(G) -- Sources),
-          is_deleted_source(G, Del, filename:extension(Del), SrcExt, ArtifactExt)] of
+		 is_deleted_source(G, Del, filename:extension(Del), SrcExt, ArtifactExt)] of
         [] ->
             ok; %% short circuit without sorting AppPaths
         Deleted ->
@@ -140,12 +140,12 @@ finalise_populate_sources(G, InDirs, Waiting) ->
             %% the file hasn't been visited yet; set it to existing, but with
             %% a last modified value that's null so it gets updated to something new.
             [digraph:add_vertex(G, Src, 0) || Src <- AbsIncls,
-                digraph:vertex(G, Src) =:= false],
+					      digraph:vertex(G, Src) =:= false],
             %% drop edges from deps that aren't included!
             [digraph:del_edge(G, Edge) || Status == old,
-                Edge <- digraph:out_edges(G, Source),
-                {_, _Src, Path, _Label} <- [digraph:edge(G, Edge)],
-                not lists:member(Path, AbsIncls)],
+					  Edge <- digraph:out_edges(G, Source),
+					  {_, _Src, Path, _Label} <- [digraph:edge(G, Edge)],
+					  not lists:member(Path, AbsIncls)],
             %% Add the rest
             [digraph:add_edge(G, Source, Incl) || Incl <- AbsIncls],
             %% mark the digraph dirty when there is any change in
@@ -246,29 +246,29 @@ compile_order(G, AppDefs, SrcExt, ArtifactExt) ->
     AppDAG = digraph:new([acyclic]), % ignore cycles and hope it works
     IsHeaderFile =
         fun(File) ->
-            Ext = filename:extension(File),
-            (Ext =/= SrcExt) andalso (Ext =/= ArtifactExt)
+		Ext = filename:extension(File),
+		(Ext =/= SrcExt) andalso (Ext =/= ArtifactExt)
         end,
     lists:foldl(
-        fun(E, Cache) ->
-            case digraph:edge(G, E) of
-                {_, _, _, artifact} ->
-                    %% skip artifacts, they don't affect compile order
-                    Cache;
-                {_, V1, V2, _} ->
-                    case resolve_header_dependencies(V2, IsHeaderFile, Cache, G) of
-                        {[], NewCache} ->
-                            NewCache;
-                        {ListOfDeps, NewCache} ->
-                            lists:foldl(
+      fun(E, Cache) ->
+	      case digraph:edge(G, E) of
+		  {_, _, _, artifact} ->
+		      %% skip artifacts, they don't affect compile order
+		      Cache;
+		  {_, V1, V2, _} ->
+		      case resolve_header_dependencies(V2, IsHeaderFile, Cache, G) of
+			  {[], NewCache} ->
+			      NewCache;
+			  {ListOfDeps, NewCache} ->
+			      lists:foldl(
                                 fun(File, CurrentCache) -> 
-                                    add_one_dependency_to_digraph(V1, File, CurrentCache, AppDefs, AppDAG)
+					add_one_dependency_to_digraph(V1, File, CurrentCache, AppDefs, AppDAG)
                                 end,
                                 NewCache,
                                 ListOfDeps)
-                    end
-            end
-        end, new_cache(), digraph:edges(G)),
+		      end
+	      end
+      end, new_cache(), digraph:edges(G)),
     Standalone = [Name || {Name, _} <- AppDefs],
     Sorted = interleave(Standalone, AppDAG),
     digraph:delete(AppDAG),
@@ -292,7 +292,7 @@ compile_order(G, AppDefs, SrcExt, ArtifactExt) ->
 %% information because it's flattened into one list, but
 %% this one can.
 interleave(Apps, DAG) ->
-     interleave(Apps, DAG, sets:new()).
+    interleave(Apps, DAG, sets:new()).
 
 interleave([], _, _) ->
     [];
@@ -386,7 +386,7 @@ restore_dag(G, File, CritMeta) ->
             %% The CritMeta value is checked and if it doesn't match, we fail
             %% the whole restore operation.
             #dag{vsn=?DAG_VSN, meta = CritMeta, vtab = VTab,
-                etab = ETab, ntab = NTab} = binary_to_term(Data),
+		 etab = ETab, ntab = NTab} = binary_to_term(Data),
             {digraph, VT, ET, NT, false} = G,
             true = ets:insert_new(VT, VTab),
             true = ets:insert_new(ET, ETab),
@@ -402,7 +402,7 @@ store_dag(G, File, CritMeta) ->
     ok = filelib:ensure_dir(File),
     {digraph, VT, ET, NT, false} = G,
     Data = term_to_binary(#dag{meta = CritMeta, vtab = ets:tab2list(VT),
-        etab = ets:tab2list(ET), ntab = ets:select(NT, [{'_',[],['$_']}])}, [{compressed, 2}]),
+			       etab = ets:tab2list(ET), ntab = ets:select(NT, [{'_',[],['$_']}])}, [{compressed, 2}]),
     file:write_file(File, Data).
 
 %% Drop a file from the digraph if it doesn't exist, and if so,
@@ -424,10 +424,10 @@ maybe_rm_artifact_and_edge(G, OutDir, SrcExt, Ext, Source) ->
                     file:delete(Target);
                 [_|_] ->
                     lists:foreach(fun(Target) ->
-                        ?DIAGNOSTIC("Source ~ts is gone, deleting artifact ~ts "
-                                    "if it exists", [Source, Target]),
-                        file:delete(Target)
-                    end, Targets)
+					  ?DIAGNOSTIC("Source ~ts is gone, deleting artifact ~ts "
+						      "if it exists", [Source, Target]),
+					  file:delete(Target)
+				  end, Targets)
             end,
             digraph:del_vertex(G, Source),
             mark_dirty(G),
@@ -449,17 +449,17 @@ maybe_rm_vertex(G, Source) ->
 %% non-source files are going to be covered by `populate_deps/3'.
 prepopulate_deps(Compiler, InDirs, Source, DepOpts, Control) ->
     {Worker, _MRef} = spawn_monitor(
-        fun () ->
-            SourceDir = filename:dirname(Source),
-            AbsIncls = case erlang:function_exported(Compiler, dependencies, 4) of
-                false ->
-                    Compiler:dependencies(Source, SourceDir, InDirs);
-                true ->
-                    Compiler:dependencies(Source, SourceDir, InDirs, DepOpts)
-            end,
-            Control ! {deps, self(), AbsIncls}
-        end
-    ),
+			fun () ->
+				SourceDir = filename:dirname(Source),
+				AbsIncls = case erlang:function_exported(Compiler, dependencies, 4) of
+					       false ->
+						   Compiler:dependencies(Source, SourceDir, InDirs);
+					       true ->
+						   Compiler:dependencies(Source, SourceDir, InDirs, DepOpts)
+					   end,
+				Control ! {deps, self(), AbsIncls}
+			end
+		       ),
     Worker.
 
 %% check that a dep file is up to date
@@ -552,8 +552,8 @@ resolve_header_dependencies(Name, IsHeaderFile, Cache, G) ->
 
 resolve_full_header_file(Name, IsHeaderFile, Cache, G) ->
     lists:foldl(fun(Dep, {Found, C}) -> 
-                    {Deps, C1} = resolve_header_dependencies(Dep, IsHeaderFile, C, G), 
-                    {Deps++Found, C1}
+			{Deps, C1} = resolve_header_dependencies(Dep, IsHeaderFile, C, G), 
+			{Deps++Found, C1}
                 end,
                 {[], Cache},
                 digraph:out_neighbours(G, Name)).

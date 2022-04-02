@@ -30,7 +30,7 @@ init(State) ->
     {ok, State1}.
 
 -spec do(rebar_state:t()) ->
-    {ok, rebar_state:t()} | {error, string()} | {error, {module(), any()}}.
+	  {ok, rebar_state:t()} | {error, string()} | {error, {module(), any()}}.
 do(State) ->
     rebar_paths:set_paths([deps, plugins], State),
     ProjectApps = rebar_state:project_apps(State),
@@ -40,33 +40,33 @@ do(State) ->
     Cwd = rebar_state:dir(State),
     rebar_hooks:run_all_hooks(Cwd, pre, ?PROVIDER, Providers, State),
     Res = try
-        lists:foldl(fun(AppInfo, EdocOptsAcc) ->
-                    rebar_hooks:run_all_hooks(Cwd, pre, ?PROVIDER, Providers, AppInfo, State),
-                    AppName = rebar_utils:to_list(rebar_app_info:name(AppInfo)),
-                    ?INFO("Running edoc for ~ts", [AppName]),
-                    AppDir = rebar_app_info:dir(AppInfo),
-                    AppOpts = rebar_app_info:opts(AppInfo),
-                    %% order of the merge is important to allow app opts overrides
-                    AppEdocOpts = merge_opts(rebar_opts:get(AppOpts, edoc_opts, []), EdocOptsAcc),
-                    ?DEBUG("{edoc_opts, ~p}.", [AppEdocOpts]),
-                    AppRes = (catch edoc:application(list_to_atom(AppName), AppDir, AppEdocOpts)),
-                    rebar_hooks:run_all_hooks(Cwd, post, ?PROVIDER, Providers, AppInfo, State),
-                    case {AppRes, ShouldAccPaths} of
-                        {ok, true} ->
-                            %% edoc wants / on all OSes
-                            add_to_paths(EdocOptsAcc, AppDir++"/doc");
-                        {ok, false} ->
-                            EdocOptsAcc;
-                        {{'EXIT', error}, _} ->
-                            %% EDoc is not very descriptive
-                            %% in terms of failures
-                            throw({app_failed, AppName})
-                    end
-                end, EdocOpts, ProjectApps)
-    catch
-        {app_failed, AppName} ->
-            {app_failed, AppName}
-    end,
+	      lists:foldl(fun(AppInfo, EdocOptsAcc) ->
+				  rebar_hooks:run_all_hooks(Cwd, pre, ?PROVIDER, Providers, AppInfo, State),
+				  AppName = rebar_utils:to_list(rebar_app_info:name(AppInfo)),
+				  ?INFO("Running edoc for ~ts", [AppName]),
+				  AppDir = rebar_app_info:dir(AppInfo),
+				  AppOpts = rebar_app_info:opts(AppInfo),
+				  %% order of the merge is important to allow app opts overrides
+				  AppEdocOpts = merge_opts(rebar_opts:get(AppOpts, edoc_opts, []), EdocOptsAcc),
+				  ?DEBUG("{edoc_opts, ~p}.", [AppEdocOpts]),
+				  AppRes = (catch edoc:application(list_to_atom(AppName), AppDir, AppEdocOpts)),
+				  rebar_hooks:run_all_hooks(Cwd, post, ?PROVIDER, Providers, AppInfo, State),
+				  case {AppRes, ShouldAccPaths} of
+				      {ok, true} ->
+					  %% edoc wants / on all OSes
+					  add_to_paths(EdocOptsAcc, AppDir++"/doc");
+				      {ok, false} ->
+					  EdocOptsAcc;
+				      {{'EXIT', error}, _} ->
+					  %% EDoc is not very descriptive
+					  %% in terms of failures
+					  throw({app_failed, AppName})
+				  end
+			  end, EdocOpts, ProjectApps)
+	  catch
+	      {app_failed, AppName} ->
+		  {app_failed, AppName}
+	  end,
     rebar_hooks:run_all_hooks(Cwd, post, ?PROVIDER, Providers, State),
     rebar_paths:set_paths([plugins, deps], State),
     case Res of

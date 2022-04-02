@@ -25,15 +25,15 @@
 init(State) ->
     State1 =
         rebar_state:add_provider(State,
-                                providers:create([{name, ?PROVIDER},
-                                                  {module, ?MODULE},
-                                                  {bare, true},
-                                                  {namespace, ?NAMESPACE},
-                                                  {deps, ?DEPS},
-                                                  {example, "rebar3 unstable upgrade"},
-                                                  {short_desc, "Download latest rebar3 escript and extract."},
-                                                  {desc, ""},
-                                                  {opts, []}])),
+                                 providers:create([{name, ?PROVIDER},
+                                                   {module, ?MODULE},
+                                                   {bare, true},
+                                                   {namespace, ?NAMESPACE},
+                                                   {deps, ?DEPS},
+                                                   {example, "rebar3 unstable upgrade"},
+                                                   {short_desc, "Download latest rebar3 escript and extract."},
+                                                   {desc, ""},
+                                                   {opts, []}])),
     {ok, State1}.
 
 -spec do(rebar_state:t()) -> {ok, rebar_state:t()} | {error, string()}.
@@ -107,13 +107,13 @@ maybe_fetch_rebar3(Rebar3Md5) ->
     end.
 
 etag(Path) ->
-     case file:read_file(Path) of
-         {ok, Binary} ->
-             <<X:128/big-unsigned-integer>> = crypto:hash(md5, Binary),
-             rebar_string:lowercase(lists:flatten(io_lib:format("~32.16.0b", [X])));
-         {error, _} ->
-             false
-     end.
+    case file:read_file(Path) of
+        {ok, Binary} ->
+            <<X:128/big-unsigned-integer>> = crypto:hash(md5, Binary),
+            rebar_string:lowercase(lists:flatten(io_lib:format("~32.16.0b", [X])));
+        {error, _} ->
+            false
+    end.
 
 -spec request(Url, ETag) -> Res when
       Url :: string(),

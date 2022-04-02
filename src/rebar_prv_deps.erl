@@ -14,18 +14,18 @@
 -spec init(rebar_state:t()) -> {ok, rebar_state:t()}.
 init(State) ->
     State1 = rebar_state:add_provider(
-            State,
-            providers:create([
-                    {name, ?PROVIDER},
-                    {module, ?MODULE},
-                    {bare, true},
-                    {deps, ?DEPS},
-                    {example, "rebar3 deps"},
-                    {short_desc, "List dependencies"},
-                    {desc, "List dependencies. Those not matching "
-                           "the config file are followed by "
-                           "an asterisk (*)."},
-                    {opts, []}])),
+	       State,
+	       providers:create([
+				 {name, ?PROVIDER},
+				 {module, ?MODULE},
+				 {bare, true},
+				 {deps, ?DEPS},
+				 {example, "rebar3 deps"},
+				 {short_desc, "List dependencies"},
+				 {desc, "List dependencies. Those not matching "
+				  "the config file are followed by "
+				  "an asterisk (*)."},
+				 {opts, []}])),
     {ok, State1}.
 
 
@@ -54,8 +54,8 @@ display_profile_deps(State, Profile) ->
     DepsDir = rebar_prv_install_deps:profile_dep_dir(State, Profile),
 
     ProfileDeps = rebar_state:get(State, {deps, Profile}, []),
-    % ProfileDeps include those deps from rebar.lock that have been
-    % removed from rebar.config
+						% ProfileDeps include those deps from rebar.lock that have been
+						% removed from rebar.config
     ConfiguredDeps = [parse_dep_without_locks(DepsDir, Dep, State)
                       || Dep <- ProfileDeps],
     LockedDepsMap = locked_deps_map(State, Profile),
@@ -66,7 +66,7 @@ parse_dep_without_locks(DepsDir, Dep, State) ->
     ParsedDep = rebar_app_utils:parse_dep(Dep, root, DepsDir, State, [], 0),
     case Dep of
         {_Name, Src, Level} when is_tuple(Src), is_integer(Level) ->
-            % This Dep is not in rebar.config but in rebar.lock
+						% This Dep is not in rebar.config but in rebar.lock
             rebar_app_info:source(ParsedDep, undefined);
         _ ->
             rebar_app_utils:expand_deps_sources(ParsedDep, State)
@@ -98,28 +98,28 @@ display_dep(State, Dep, LockedDeps) ->
     display_dep_line(Name, NeedsUpdate, source_text(LockedSource), source_text(Source)).
 
 
-% Dep is a checkout
+						% Dep is a checkout
 display_dep_line(Name, _NeedsUpdate, _LockedSource, Source = checkout) ->
     ?CONSOLE("~ts* (~ts)", [Name, Source]);
 
-% Dep exists only in lock file
+						% Dep exists only in lock file
 display_dep_line(Name, _NeedsUpdate, LockedSource, _Source = undefined) ->
     ?CONSOLE("~ts* (locked ~ts <> none)", [Name, LockedSource]);
 
-% Dep not locked, report whether the disk copy matches the Source
+						% Dep not locked, report whether the disk copy matches the Source
 display_dep_line(Name, true, undefined, Source) ->
     ?CONSOLE("~ts* (~ts)", [Name, Source]);
 display_dep_line(Name, _, undefined, Source) ->
     ?CONSOLE("~ts (~ts)", [Name, Source]);
 
-% Dep locked, install_deps provider should have had updated the disk copy with
-% the locked version
+						% Dep locked, install_deps provider should have had updated the disk copy with
+						% the locked version
 display_dep_line(Name, false, _LockedSource, Source) ->
-    % dep locked and no need to update (LockedSource and Source might not match
-    % because of one using {ref, X} and the other {tag, Y})
+						% dep locked and no need to update (LockedSource and Source might not match
+						% because of one using {ref, X} and the other {tag, Y})
     ?CONSOLE("~ts (locked ~ts)", [Name, Source]);
 display_dep_line(Name, _NeedsUpdate, LockedSource, Source) ->
-    % dep locked with mismatching lock and config files
+						% dep locked with mismatching lock and config files
     ?CONSOLE("~ts* (locked ~ts <> ~ts)", [Name, LockedSource, Source]).
 
 

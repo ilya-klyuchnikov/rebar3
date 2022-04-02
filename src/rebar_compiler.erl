@@ -59,8 +59,8 @@ analyze_all({Compiler, G}, Apps) ->
     OutExt = maps:get(artifact_exts, Contexts),
 
     rebar_compiler_dag:prune(
-        G, SrcExt, OutExt, lists:append(AbsSources), lists:append(AppOutPaths)
-    ),
+      G, SrcExt, OutExt, lists:append(AbsSources), lists:append(AppOutPaths)
+     ),
     rebar_compiler_dag:populate_deps(G, SrcExt, OutExt),
     rebar_compiler_dag:propagate_stamps(G),
 
@@ -92,22 +92,22 @@ compile_all(Compilers, AppInfo) -> % =< 3.13.0 interface; plugins use this!
     %% Support the old-style API by re-declaring a local DAG for the
     %% compile steps needed.
     lists:foreach(fun(Compiler) ->
-        OutDir = rebar_app_info:out_dir(AppInfo),
-        G = rebar_compiler_dag:init(OutDir, Compiler, undefined, []),
-        {Ctx, _} = analyze_all({Compiler, G}, [AppInfo]),
-        compile_analyzed({Compiler, G}, AppInfo, Ctx),
-        rebar_compiler_dag:maybe_store(G, OutDir, Compiler, undefined, []),
-        rebar_compiler_dag:terminate(G)
-     end, Compilers).
+			  OutDir = rebar_app_info:out_dir(AppInfo),
+			  G = rebar_compiler_dag:init(OutDir, Compiler, undefined, []),
+			  {Ctx, _} = analyze_all({Compiler, G}, [AppInfo]),
+			  compile_analyzed({Compiler, G}, AppInfo, Ctx),
+			  rebar_compiler_dag:maybe_store(G, OutDir, Compiler, undefined, []),
+			  rebar_compiler_dag:terminate(G)
+		  end, Compilers).
 
 %% @doc remove compiled artifacts from an AppDir.
 -spec clean([module()], rebar_app_info:t()) -> 'ok'.
 clean(Compilers, AppInfo) ->
     lists:foreach(fun(CompilerMod) ->
-        clean_(CompilerMod, AppInfo, undefined),
-        Extras = annotate_extras(AppInfo),
-        [clean_(CompilerMod, ExtraApp, "extra") || ExtraApp <- Extras]
-    end, Compilers).
+			  clean_(CompilerMod, AppInfo, undefined),
+			  Extras = annotate_extras(AppInfo),
+			  [clean_(CompilerMod, ExtraApp, "extra") || ExtraApp <- Extras]
+		  end, Compilers).
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -153,9 +153,9 @@ gather_contexts(Compiler, Apps) ->
     [{_, #{src_ext := SrcExt}} | _] = Contexts,
     %% gather multi-app stuff once to avoid recomputing it
     ArtifactExts = lists:usort(
-        [Ext || {_, #{out_mappings := Mappings}} <- Contexts,
-                {Ext, _Dir} <- Mappings]
-    ),
+		     [Ext || {_, #{out_mappings := Mappings}} <- Contexts,
+			     {Ext, _Dir} <- Mappings]
+		    ),
     InDirs = gather_in_dirs(lists:zip(Apps, [Context || {_, Context} <- Contexts])),
     ContextMap#{src_ext => SrcExt,
                 artifact_exts => ArtifactExts,
@@ -190,8 +190,8 @@ analyze_app({Compiler, G}, Contexts, AppInfo) ->
     InDirs = maps:get(in_dirs, Contexts),
     %% Run the analysis
     rebar_compiler_dag:populate_sources(
-        G, Compiler, InDirs, AbsSources, DepOpts
-    ),
+      G, Compiler, InDirs, AbsSources, DepOpts
+     ),
     {[{filename:join([BaseDir, SrcDir]), ArtifactDir} || SrcDir <- SrcDirs],
      AbsSources}.
 
@@ -205,23 +205,23 @@ prepare_compiler_env(Compiler, Apps) ->
                  || {ok, RebarApps} <- [application:get_key(rebar, applications)],
                     Atom <- RebarApps],
     lists:foreach(
-        fun(AppInfo) ->
-            EbinDir = rebar_utils:to_list(rebar_app_info:ebin_dir(AppInfo)),
-            %% Make sure that outdir is on the path
-            ok = rebar_file_utils:ensure_dir(EbinDir),
-            %% We use code:add_pathz for better caching speed when
-            %% dealing with overall projects and deps under profiles,
-            %% but for correctness' sake, we also have to
-            %% use code:add_patha to go above rebar3's own dependencies
-            %% when they clash to avoid overtaking the project's
-            %% path for includes and priv/
-            case lists:member(rebar_app_info:name(AppInfo), RebarLibs) of
-                true -> true = code:add_patha(filename:absname(EbinDir));
-                false -> true = code:add_pathz(filename:absname(EbinDir))
-            end
-        end,
-        Apps
-    ),
+      fun(AppInfo) ->
+	      EbinDir = rebar_utils:to_list(rebar_app_info:ebin_dir(AppInfo)),
+	      %% Make sure that outdir is on the path
+	      ok = rebar_file_utils:ensure_dir(EbinDir),
+	      %% We use code:add_pathz for better caching speed when
+	      %% dealing with overall projects and deps under profiles,
+	      %% but for correctness' sake, we also have to
+	      %% use code:add_patha to go above rebar3's own dependencies
+	      %% when they clash to avoid overtaking the project's
+	      %% path for includes and priv/
+	      case lists:member(rebar_app_info:name(AppInfo), RebarLibs) of
+		  true -> true = code:add_patha(filename:absname(EbinDir));
+		  false -> true = code:add_pathz(filename:absname(EbinDir))
+	      end
+      end,
+      Apps
+     ),
     %% necessary for erlang:function_exported/3 to work as expected
     %% called here for clarity as it's required by both opts_changed/2
     %% and erl_compiler_opts_set/0 in needed_files
@@ -245,16 +245,16 @@ run(G, CompilerMod, AppInfo, Contexts) ->
      {RestFiles, Opts}} = CompilerMod:needed_files(G, FoundFiles, Mappings, AppInfo),
 
     Tracked =
-    compile_each(FirstFiles, FirstFileOpts, BaseOpts, Mappings, CompilerMod)
-     ++ case RestFiles of
-        {Sequential, Parallel} -> % parallelizable form
-            compile_each(Sequential, Opts, BaseOpts, Mappings, CompilerMod) ++
-            lists:append(
-              compile_parallel(Parallel, Opts, BaseOpts, Mappings, CompilerMod)
-            );
-        _ when is_list(RestFiles) -> % traditional sequential build
-            compile_each(RestFiles, Opts, BaseOpts, Mappings, CompilerMod)
-    end,
+	compile_each(FirstFiles, FirstFileOpts, BaseOpts, Mappings, CompilerMod)
+	++ case RestFiles of
+	       {Sequential, Parallel} -> % parallelizable form
+		   compile_each(Sequential, Opts, BaseOpts, Mappings, CompilerMod) ++
+		       lists:append(
+			 compile_parallel(Parallel, Opts, BaseOpts, Mappings, CompilerMod)
+			);
+	       _ when is_list(RestFiles) -> % traditional sequential build
+		   compile_each(RestFiles, Opts, BaseOpts, Mappings, CompilerMod)
+	   end,
     store_artifacts(G, Tracked).
 
 compile_each([], _Opts, _Config, _Outs, _CompilerMod) ->
@@ -266,7 +266,7 @@ compile_each([Source | Rest], Opts, Config, Outs, CompilerMod) ->
             compile_each(Rest, Opts, Config, Outs, CompilerMod);
         true ->
             do_compile_and_track(CompilerMod, Source, Outs, Config, Opts)
-            ++ compile_each(Rest, Opts, Config, Outs, CompilerMod)
+		++ compile_each(Rest, Opts, Config, Outs, CompilerMod)
     end.
 
 do_compile(CompilerMod, Source, Outs, Config, Opts) ->
@@ -316,18 +316,18 @@ store_artifacts(G, [{Source, Target, Meta}|Rest]) ->
 compile_parallel(Targets, Opts, BaseOpts, Mappings, CompilerMod) ->
     Tracking = erlang:function_exported(CompilerMod, compile_and_track, 4),
     rebar_parallel:queue(
-        Targets,
-        fun compile_worker/2, [Opts, BaseOpts, Mappings, CompilerMod],
-        fun compile_handler/2, [BaseOpts, Tracking]
-    ).
+      Targets,
+      fun compile_worker/2, [Opts, BaseOpts, Mappings, CompilerMod],
+      fun compile_handler/2, [BaseOpts, Tracking]
+     ).
 
 compile_worker(Source, [Opts, Config, Outs, CompilerMod]) ->
     Result = case erlang:function_exported(CompilerMod, compile_and_track, 4) of
-        false ->
-            CompilerMod:compile(Source, Outs, Config, Opts);
-        true ->
-            CompilerMod:compile_and_track(Source, Outs, Config, Opts)
-    end,
+		 false ->
+		     CompilerMod:compile(Source, Outs, Config, Opts);
+		 true ->
+		     CompilerMod:compile_and_track(Source, Outs, Config, Opts)
+	     end,
     %% Bundle the source to allow proper reporting in the handler:
     {Result, Source}.
 
@@ -383,29 +383,29 @@ annotate_extras(AppInfo) ->
                       end || Dir <- OldSrcDirs],
     AppDir = rebar_app_info:dir(AppInfo),
     lists:map(fun({DirOpt, Dir}) ->
-        EbinDir = filename:join(rebar_app_info:out_dir(AppInfo), Dir),
-        %% need a unique name to prevent lookup issues that clobber entries
-        AppName = unicode:characters_to_binary(
-            [rebar_app_info:name(AppInfo), "_", Dir]
-        ),
-        AppInfo0 = rebar_app_info:name(AppInfo, AppName),
-        AppInfo1 = rebar_app_info:ebin_dir(AppInfo0, EbinDir),
-        AppInfo2 = rebar_app_info:set(AppInfo1, src_dirs, [DirOpt]),
-        AppInfo3 = rebar_app_info:set(AppInfo2, extra_src_dirs, OldSrcDirsOpts),
-        add_to_includes( % give access to .hrl in app's src/
-            AppInfo3,
-            [filename:join([AppDir, D]) || D <- OldSrcDirs]
-        )
-    end,
-    [T || T = {_DirOpt, ExtraDir} <- lists:zip(ExtraDirsOpts, ExtraDirs),
-          filelib:is_dir(filename:join(AppDir, ExtraDir))]
-    ).
+		      EbinDir = filename:join(rebar_app_info:out_dir(AppInfo), Dir),
+		      %% need a unique name to prevent lookup issues that clobber entries
+		      AppName = unicode:characters_to_binary(
+				  [rebar_app_info:name(AppInfo), "_", Dir]
+				 ),
+		      AppInfo0 = rebar_app_info:name(AppInfo, AppName),
+		      AppInfo1 = rebar_app_info:ebin_dir(AppInfo0, EbinDir),
+		      AppInfo2 = rebar_app_info:set(AppInfo1, src_dirs, [DirOpt]),
+		      AppInfo3 = rebar_app_info:set(AppInfo2, extra_src_dirs, OldSrcDirsOpts),
+		      add_to_includes( % give access to .hrl in app's src/
+			AppInfo3,
+			[filename:join([AppDir, D]) || D <- OldSrcDirs]
+		       )
+	      end,
+	      [T || T = {_DirOpt, ExtraDir} <- lists:zip(ExtraDirsOpts, ExtraDirs),
+		    filelib:is_dir(filename:join(AppDir, ExtraDir))]
+	     ).
 
 find_source_files(BaseDir, SrcExt, SrcDirs, Opts) ->
     SourceExtRe = "^(?!\\._).*\\" ++ SrcExt ++ [$$],
     lists:flatmap(fun(SrcDir) ->
-                      Recursive = rebar_dir:recursive(Opts, SrcDir),
-                      rebar_utils:find_files_in_dirs([filename:join(BaseDir, SrcDir)], SourceExtRe, Recursive)
+			  Recursive = rebar_dir:recursive(Opts, SrcDir),
+			  rebar_utils:find_files_in_dirs([filename:join(BaseDir, SrcDir)], SourceExtRe, Recursive)
                   end, SrcDirs).
 
 add_to_includes(AppInfo, Dirs) ->

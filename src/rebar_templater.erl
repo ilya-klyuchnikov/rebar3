@@ -83,9 +83,9 @@ get_template_description(TemplateTerms) ->
 %% and return them merged with the globally-defined and default variables.
 get_template_vars(TemplateTerms, State) ->
     Vars = case lists:keyfind(variables, 1, TemplateTerms) of
-        {_, Value} -> Value;
-        false -> []
-    end,
+               {_, Value} -> Value;
+               false -> []
+           end,
     override_vars(Vars, override_vars(global_variables(State), default_variables())).
 
 %% Provide a way to merge a set of variables with another one. The left-hand
@@ -135,14 +135,14 @@ default_author_and_email() ->
                 {ok, NameEmail} ->
                     case re:run(NameEmail, "^(.*) <(.*)>$", [{capture, [1,2], list}, unicode]) of
                         {match, [Name, Email]} ->
-                            {Name, Email};
-                        _ ->
-                            {"Anonymous", "anonymous@example.org"}
-                    end;
-                {error, _} ->
-                    {"Anonymous", "anonymous@example.org"}
-            end
-    end.
+                                       {Name, Email};
+                                    _ ->
+                                       {"Anonymous", "anonymous@example.org"}
+                               end;
+                                    {error, _} ->
+                                       {"Anonymous", "anonymous@example.org"}
+                               end
+                                end.
 
 %% Load variable definitions from the 'Globals' file in the home template
 %% directory
@@ -187,11 +187,11 @@ maybe_warn_about_name(Vars) ->
     Name = proplists:get_value(name, Vars, "valid"),
     case validate_atom(Name) of
         invalid ->
-           ?WARN("The 'name' variable is often associated with Erlang "
-                 "module names and/or file names. The value submitted "
-                 "(~ts) isn't an unquoted Erlang atom. Templates "
-                 "generated may contain errors.",
-                 [Name]);
+            ?WARN("The 'name' variable is often associated with Erlang "
+                  "module names and/or file names. The value submitted "
+                  "(~ts) isn't an unquoted Erlang atom. Templates "
+                  "generated may contain errors.",
+                  [Name]);
         valid ->
             ok
     end.
@@ -201,15 +201,15 @@ maybe_warn_about_name_clash(File) ->
         ".erl" ->
             Module0 = re:replace(filename:basename(File), "\\.erl$", "", [{return, list}]),
             Module = list_to_atom(Module0),
-            try Module:module_info() of
-                _ -> ?WARN("The module definition of '~ts' in file ~ts "
-                           "will clash with an existing Erlang module.",
-                           [Module, File])
-            catch
-                _:_ -> ok
-            end;
-        _ -> ok
-    end.
+                                 try Module:module_info() of
+                                     _ -> ?WARN("The module definition of '~ts' in file ~ts "
+                                                "will clash with an existing Erlang module.",
+                                                [Module, File])
+                                 catch
+                                     _:_ -> ok
+                                 end;
+                                     _ -> ok
+                                end.
 
 validate_atom(Str) ->
     case io_lib:fread("~a", unicode:characters_to_list(Str)) of
@@ -376,14 +376,14 @@ find_plugin_templates(State) ->
         Priv <- [rebar_app_info:priv_dir(App)],
         Priv =/= undefined,
         File <- rebar_utils:find_files(Priv, ?TEMPLATE_RE)]
-    ++ %% and add global plugins too
-    [{plugin, File}
-     || PSource <- rebar_state:get(State, {plugins, global}, []),
-        Plugin <- [plugin_provider(PSource)],
-        is_atom(Plugin),
-        Priv <- [code:priv_dir(Plugin)],
-        Priv =/= undefined,
-        File <- rebar_utils:find_files(Priv, ?TEMPLATE_RE)].
+        ++ %% and add global plugins too
+        [{plugin, File}
+         || PSource <- rebar_state:get(State, {plugins, global}, []),
+            Plugin <- [plugin_provider(PSource)],
+            is_atom(Plugin),
+            Priv <- [code:priv_dir(Plugin)],
+            Priv =/= undefined,
+            File <- rebar_utils:find_files(Priv, ?TEMPLATE_RE)].
 
 plugin_provider(P) when is_atom(P) -> P;
 plugin_provider(T) when is_tuple(T) -> element(1, T).
@@ -449,7 +449,7 @@ write_file(Output, Data, Force) ->
             case {Force, FileExists} of
                 {true, true} ->
                     ?INFO("Writing ~ts (forcibly overwriting)",
-                             [Output]);
+                          [Output]);
                 _ ->
                     ?INFO("Writing ~ts", [Output])
             end,
@@ -471,7 +471,7 @@ render(Bin, Context) ->
       Context,
       [{key_type, atom},
        {escape_fun, fun(X) -> X end}] % disable HTML-style escaping
-    ).
+     ).
 
 consult_template(Files, Type, File) ->
     TemplateBin = load_file(Files, Type, File),

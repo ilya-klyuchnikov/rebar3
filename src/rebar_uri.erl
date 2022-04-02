@@ -4,7 +4,7 @@
 -export([
          parse/1, parse/2, scheme_defaults/0,
          append_path/2, percent_decode/1
-]).
+	]).
 
 -type error() :: {error, atom(), term()}.
 
@@ -21,8 +21,8 @@
 
 -ifdef(OTP_RELEASE).
 -spec parse(URIString) -> URIMap when
-    URIString :: uri_string:uri_string(),
-    URIMap :: uri_string:uri_map() | uri_string:error().
+      URIString :: uri_string:uri_string(),
+      URIMap :: uri_string:uri_map() | uri_string:error().
 
 parse(URIString) ->
     parse(URIString, []).
@@ -35,8 +35,8 @@ parse(URIString, URIOpts) ->
     end.
 -else.
 -spec parse(URIString) -> URIMap when
-    URIString :: iodata(),
-    URIMap :: map() | {error, term(), term()}.
+      URIString :: iodata(),
+      URIMap :: map() | {error, term(), term()}.
 
 parse(URIString) ->
     parse(URIString, []).
@@ -50,54 +50,54 @@ parse(URIString, URIOpts) ->
             {error, "", Reason};
         {ok, {Scheme, UserInfo, Host, Port, Path, Query}} ->
             #{
-                scheme => rebar_utils:to_list(Scheme),
-                host => Host,
-                port => Port,
-                path => Path,
-                %% http_uri:parse/1 includes the leading question mark
-                %% in query string but uri_string:parse/1 leaves it out.
-                %% string:slice/2 isn't available in OTP <= 19.
-                query => case Query of
+	      scheme => rebar_utils:to_list(Scheme),
+	      host => Host,
+	      port => Port,
+	      path => Path,
+	      %% http_uri:parse/1 includes the leading question mark
+	      %% in query string but uri_string:parse/1 leaves it out.
+	      %% string:slice/2 isn't available in OTP <= 19.
+	      query => case Query of
                            [] -> "";
                            _  -> string:substr(Query, 2)
-                         end,
-                userinfo => UserInfo
-            }
+		       end,
+	      userinfo => UserInfo
+	     }
     end.
 -endif.
 
 %% OTP 21+
 -ifdef(OTP_RELEASE).
 append_path(Url, ExtraPath) ->
-     case parse(Url) of
-         #{path := Path} = Map ->
-             FullPath = join(Path, ExtraPath),
-             {ok, uri_string:recompose(maps:update(path, FullPath, Map))};
-         _ ->
-             error
-     end.
+    case parse(Url) of
+	#{path := Path} = Map ->
+	    FullPath = join(Path, ExtraPath),
+	    {ok, uri_string:recompose(maps:update(path, FullPath, Map))};
+	_ ->
+	    error
+    end.
 -else.
 append_path(Url, ExtraPath) ->
-     case parse(Url) of
-         #{scheme := Scheme, userinfo := UserInfo, host := Host,
-           port := Port, path := Path, query := Query} ->
-             ListScheme = rebar_utils:to_list(Scheme),
-             PrefixedQuery = case Query of
-                               []    -> [];
-                               Other -> lists:append(["?", Other])
-                             end,
-             NormPath = case Path of
-                            "" -> "/";
-                            _ -> Path
-                        end,
-             {ok, maybe_port(
-                Url, lists:append([ListScheme, "://", UserInfo, Host]),
-                [$: | rebar_utils:to_list(Port)],
-                lists:append([join(NormPath, ExtraPath), PrefixedQuery])
-             )};
-         _ ->
-             error
-     end.
+    case parse(Url) of
+	#{scheme := Scheme, userinfo := UserInfo, host := Host,
+	  port := Port, path := Path, query := Query} ->
+	    ListScheme = rebar_utils:to_list(Scheme),
+	    PrefixedQuery = case Query of
+				[]    -> [];
+				Other -> lists:append(["?", Other])
+			    end,
+	    NormPath = case Path of
+			   "" -> "/";
+			   _ -> Path
+		       end,
+	    {ok, maybe_port(
+		   Url, lists:append([ListScheme, "://", UserInfo, Host]),
+		   [$: | rebar_utils:to_list(Port)],
+		   lists:append([join(NormPath, ExtraPath), PrefixedQuery])
+		  )};
+	_ ->
+	    error
+    end.
 -endif.
 
 %% Taken from OTP 23.2

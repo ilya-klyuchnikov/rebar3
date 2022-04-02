@@ -77,9 +77,9 @@ consult_config(State, Filename) ->
     Fullpath = filename:join(rebar_dir:root_dir(State), Filename),
     ?DEBUG("Loading configuration from ~p", [Fullpath]),
     Config = case try_consult(Fullpath) of
-        [T] -> T;
-        [] -> []
-    end,
+                 [T] -> T;
+                 [] -> []
+             end,
     consult_config_terms(State, Config).
 
 %% @doc From a parsed sys.config file, expand all the terms to include
@@ -93,14 +93,14 @@ consult_config(State, Filename) ->
 -spec consult_config_terms(rebar_state:t(), [tuple()]) -> [[tuple()]].
 consult_config_terms(State, Config) ->
     JoinedConfig = lists:flatmap(
-        fun (SubConfig) when is_list(SubConfig) ->
-            case lists:suffix(".config", SubConfig) of
-                %% since consult_config returns a list in a list we take the head here
-                false -> hd(consult_config(State, SubConfig ++ ".config"));
-                true -> hd(consult_config(State, SubConfig))
-            end;
-            (Entry) -> [Entry]
-      end, Config),
+                     fun (SubConfig) when is_list(SubConfig) ->
+                             case lists:suffix(".config", SubConfig) of
+                                 %% since consult_config returns a list in a list we take the head here
+                                 false -> hd(consult_config(State, SubConfig ++ ".config"));
+                                 true -> hd(consult_config(State, SubConfig))
+                             end;
+                         (Entry) -> [Entry]
+                     end, Config),
     %% Backwards compatibility
     [JoinedConfig].
 
@@ -160,8 +160,8 @@ win32_mklink_ok({ok, _}, _) ->
 win32_mklink_ok({error,{1,"Local NTFS volumes are required to complete the operation.\n"}}, _) ->
     false;
 win32_mklink_ok({error,{1,"Cannot create a file when that file already exists.\n"}}, Target) ->
-    % File or dir is already in place; find if it is already a symlink (true) or
-    % if it is a directory (copy-required; false)
+                                                % File or dir is already in place; find if it is already a symlink (true) or
+                                                % if it is a directory (copy-required; false)
     is_symlink(Target);
 win32_mklink_ok(_, Target) ->
     is_symlink(Target).
@@ -214,21 +214,21 @@ cp_r(Sources, Dest) ->
         {unix, Os} ->
             EscSources = [rebar_utils:escape_chars(Src) || Src <- Sources],
             SourceStr = rebar_string:join(EscSources, " "),
-            % On darwin the following cp command will cp everything inside
-            % target vs target and everything inside, so we chop the last char
-            % off if it is a '/'
+                                                % On darwin the following cp command will cp everything inside
+                                                % target vs target and everything inside, so we chop the last char
+                                                % off if it is a '/'
             Source = case {Os == darwin, lists:last(SourceStr) == $/} of
-                {true, true} ->
-                    rebar_string:trim(SourceStr, trailing, "/");
-                {true, false} ->
-                    SourceStr;
-                {false, _} ->
-                    SourceStr
-            end,
-            % ensure destination exists before copying files into it
+                         {true, true} ->
+                             rebar_string:trim(SourceStr, trailing, "/");
+                         {true, false} ->
+                             SourceStr;
+                         {false, _} ->
+                             SourceStr
+                     end,
+                                                % ensure destination exists before copying files into it
             {ok, []} = rebar_utils:sh(?FMT("mkdir -p ~ts",
-                           [rebar_utils:escape_chars(Dest)]),
-                      [{use_stdout, false}, abort_on_error]),
+                                           [rebar_utils:escape_chars(Dest)]),
+                                      [{use_stdout, false}, abort_on_error]),
             {ok, []} = rebar_utils:sh(?FMT("cp -Rp ~ts \"~ts\"",
                                            [Source, rebar_utils:escape_double_quotes(Dest)]),
                                       [{use_stdout, true}, abort_on_error]),
@@ -245,7 +245,7 @@ mv(Source, Dest) ->
             EscSource = rebar_utils:escape_chars(Source),
             EscDest = rebar_utils:escape_chars(Dest),
             case rebar_utils:sh(?FMT("mv ~ts ~ts", [EscSource, EscDest]),
-                                      [{use_stdout, false}, abort_on_error]) of
+                                [{use_stdout, false}, abort_on_error]) of
                 {ok, []} ->
                     ok;
                 {ok, Warning} ->
@@ -257,15 +257,15 @@ mv(Source, Dest) ->
                 true ->
                     SrcDir = filename:nativename(Source),
                     DestDir = case filelib:is_dir(Dest) of
-                        true ->
-                            %% to simulate unix/posix mv, we have to replicate
-                            %% the same directory movement by moving the whole
-                            %% top-level directory, not just the insides
-                            SrcName = filename:basename(Source),
-                            filename:nativename(filename:join(Dest, SrcName));
-                        false ->
-                            filename:nativename(Dest)
-                    end,
+                                  true ->
+                                      %% to simulate unix/posix mv, we have to replicate
+                                      %% the same directory movement by moving the whole
+                                      %% top-level directory, not just the insides
+                                      SrcName = filename:basename(Source),
+                                      filename:nativename(filename:join(Dest, SrcName));
+                                  false ->
+                                      filename:nativename(Dest)
+                              end,
                     robocopy_dir(SrcDir, DestDir);
                 false ->
                     SrcDir = filename:nativename(filename:dirname(Source)),
@@ -274,18 +274,18 @@ mv(Source, Dest) ->
                     DestName = filename:basename(Dest),
                     IsDestDir = filelib:is_dir(Dest),
                     if IsDestDir ->
-                        %% if basename and target name are different because
-                        %% we move to a directory, then just move there.
-                        %% Similarly, if they are the same but we're going to
-                        %% a directory, let's just do that directly.
-                        FullDestDir = filename:nativename(Dest),
-                        robocopy_file(SrcDir, FullDestDir, SrcName)
-                    ;  SrcName =:= DestName ->
-                        %% if basename and target name are the same and both are files,
-                        %% we do a regular move with robocopy without rename.
-                        robocopy_file(SrcDir, DestDir, DestName)
-                    ;  SrcName =/= DestName->
-                        robocopy_mv_and_rename(Source, Dest, SrcDir, SrcName, DestDir, DestName)
+                            %% if basename and target name are different because
+                            %% we move to a directory, then just move there.
+                            %% Similarly, if they are the same but we're going to
+                            %% a directory, let's just do that directly.
+                            FullDestDir = filename:nativename(Dest),
+                            robocopy_file(SrcDir, FullDestDir, SrcName)
+                      ;  SrcName =:= DestName ->
+                            %% if basename and target name are the same and both are files,
+                            %% we do a regular move with robocopy without rename.
+                            robocopy_file(SrcDir, DestDir, DestName)
+                      ;  SrcName =/= DestName->
+                            robocopy_mv_and_rename(Source, Dest, SrcDir, SrcName, DestDir, DestName)
                     end
 
             end
@@ -302,8 +302,8 @@ robocopy_mv_and_rename(Source, Dest, SrcDir, SrcName, DestDir, DestName) ->
     case ec_file:insecure_mkdtemp() of
         {error, _Reason} ->
             {error, lists:flatten(
-                     io_lib:format("Failed to move ~ts to ~ts (tmpdir failed)~n",
-                                   [Source, Dest]))};
+                      io_lib:format("Failed to move ~ts to ~ts (tmpdir failed)~n",
+                                    [Source, Dest]))};
         TmpPath ->
             case robocopy_file(SrcDir, TmpPath, SrcName) of
                 {error, Reason} ->
@@ -334,9 +334,9 @@ robocopy_file(SrcPath, DestPath, FileName) ->
     case win32_ok(Res) of
         false ->
             {error, lists:flatten(
-                        io_lib:format("Failed to move ~ts to ~ts~n",
-                                      [filename:join(SrcPath, FileName),
-                                       filename:join(DestPath, FileName)]))};
+                      io_lib:format("Failed to move ~ts to ~ts~n",
+                                    [filename:join(SrcPath, FileName),
+                                     filename:join(DestPath, FileName)]))};
         true ->
             ok
     end.
@@ -403,11 +403,11 @@ system_tmpdir() -> system_tmpdir([]).
       PathComponents :: [file:name()].
 system_tmpdir(PathComponents) ->
     Tmp = case erlang:system_info(system_architecture) of
-        "win32" ->
-            "./tmp";
-        _SysArch ->
-            os:getenv("TMPDIR", "/tmp")
-    end,
+              "win32" ->
+                  "./tmp";
+              _SysArch ->
+                  os:getenv("TMPDIR", "/tmp")
+          end,
     filename:join([Tmp|PathComponents]).
 
 %% recursively removes a directory and then recreates the same
@@ -552,18 +552,18 @@ xcopy_win32(Source,Dest)->
                         rebar_utils:escape_double_quotes(filename:basename(Source))])
           end,
     Res = rebar_utils:sh(Cmd,
-                [{use_stdout, false}, return_on_error]),
+                         [{use_stdout, false}, return_on_error]),
     case win32_ok(Res) of
-                true -> ok;
-                false ->
-                    {error, lists:flatten(
-                              io_lib:format("Failed to copy ~ts to ~ts~n",
-                                            [Source, Dest]))}
+        true -> ok;
+        false ->
+            {error, lists:flatten(
+                      io_lib:format("Failed to copy ~ts to ~ts~n",
+                                    [Source, Dest]))}
     end.
 
 cp_r_win32({true, SourceDir}, {true, DestDir}) ->
     %% from directory to directory
-     ok = case file:make_dir(DestDir) of
+    ok = case file:make_dir(DestDir) of
              {error, eexist} -> ok;
              Other -> Other
          end,

@@ -20,29 +20,29 @@
 -spec init(rebar_state:t()) -> {ok, rebar_state:t()}.
 init(State) ->
     State1 = rebar_state:add_provider(
-        State,
-        providers:create([
-            {name, ?PROVIDER},
-            {module, ?MODULE},
-            {namespace, ?NAMESPACE},
-            {bare, false},
-            {deps, ?DEPS},
-            {example, ""},
-            {short_desc, ""},
-            {desc, ""},
-            {opts, [
-                {paths, $p, "paths", string,
-                 "Wildcard paths of ebin directories to add to code path, "
-                 "separated by a colon"},
-                {separator, $s, "separator", string,
-                 "In case of multiple return paths, the separator character "
-                 "to use to join them."},
-                {outdir, $o, "outdir", string,
-                 "Path where build artifacts are located. Defaults to the "
-                 "current directory."}
-            ]}
-        ])
-    ),
+	       State,
+	       providers:create([
+				 {name, ?PROVIDER},
+				 {module, ?MODULE},
+				 {namespace, ?NAMESPACE},
+				 {bare, false},
+				 {deps, ?DEPS},
+				 {example, ""},
+				 {short_desc, ""},
+				 {desc, ""},
+				 {opts, [
+					 {paths, $p, "paths", string,
+					  "Wildcard paths of ebin directories to add to code path, "
+					  "separated by a colon"},
+					 {separator, $s, "separator", string,
+					  "In case of multiple return paths, the separator character "
+					  "to use to join them."},
+					 {outdir, $o, "outdir", string,
+					  "Path where build artifacts are located. Defaults to the "
+					  "current directory."}
+					]}
+				])
+	      ),
     {ok, State1}.
 
 -spec do(rebar_state:t()) -> {ok, rebar_state:t()} | {error, string()}.
@@ -78,9 +78,9 @@ do(State) ->
 -spec format_error(any()) -> iolist().
 format_error({not_an_application_structure, Path}) ->
     io_lib:format(
-        "Compilation failed: there is no code in this directory (~ts), " ++
-        "it is unreadable or for some other reason " ++
-        "is not a recognizable application structure.",
-        [Path]);
+      "Compilation failed: there is no code in this directory (~ts), " ++
+	  "it is unreadable or for some other reason " ++
+	  "is not a recognizable application structure.",
+      [Path]);
 format_error(Reason) ->
     io_lib:format("~p", [Reason]).

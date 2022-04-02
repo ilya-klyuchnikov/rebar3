@@ -21,14 +21,14 @@
 -spec init(rebar_state:t()) -> {ok, rebar_state:t()}.
 init(State) ->
     Provider = providers:create(
-        [{name, ?PROVIDER},
-         {module, ?MODULE},
-         {bare, false},
-         {deps, ?DEPS},
-         {example, "rebar3 repos"},
-         {short_desc, "Print current package repository configuration"},
-         {desc, "Display repository configuration for debugging purpose"},
-         {opts, []}]),
+                 [{name, ?PROVIDER},
+                  {module, ?MODULE},
+                  {bare, false},
+                  {deps, ?DEPS},
+                  {example, "rebar3 repos"},
+                  {short_desc, "Print current package repository configuration"},
+                  {desc, "Display repository configuration for debugging purpose"},
+                  {opts, []}]),
     State1 = rebar_state:add_provider(State, Provider),
     {ok, State1}.
 

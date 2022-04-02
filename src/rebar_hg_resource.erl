@@ -55,14 +55,14 @@ needs_update_(Dir, {hg, Url, "default"}) ->
 needs_update_(Dir, {hg, Url, Ref}) ->
     LocalRef = get_ref(Dir),
     TargetRef = case Ref of
-        {ref, Ref1} ->
-            Length = length(LocalRef),
-            if Length >= 7 -> lists:sublist(Ref1, Length);
-               Length < 7 -> Ref1
-            end;
-        Ref1 ->
-            Ref1
-    end,
+                    {ref, Ref1} ->
+                        Length = length(LocalRef),
+                        if Length >= 7 -> lists:sublist(Ref1, Length);
+                           Length < 7 -> Ref1
+                        end;
+                    Ref1 ->
+                        Ref1
+                end,
     ?DEBUG("Comparing hg ref ~ts with ~ts", [Ref1, LocalRef]),
     not ((LocalRef =:= TargetRef) andalso compare_url(Dir, Url)).
 
@@ -91,9 +91,9 @@ download_(Dir, {hg, Url, {branch, Branch}}, _State) ->
     ok = filelib:ensure_dir(Dir),
     maybe_warn_local_url(Url),
     rebar_utils:sh(?FMT("hg clone -q -b ~ts ~ts ~ts",
-                       [rebar_utils:escape_chars(Branch),
-                        rebar_utils:escape_chars(Url),
-                        rebar_utils:escape_chars(filename:basename(Dir))]),
+                        [rebar_utils:escape_chars(Branch),
+                         rebar_utils:escape_chars(Url),
+                         rebar_utils:escape_chars(filename:basename(Dir))]),
                    [{cd, filename:dirname(Dir)}]);
 download_(Dir, {hg, Url, {tag, Tag}}, _State) ->
     ok = filelib:ensure_dir(Dir),
@@ -128,7 +128,7 @@ make_vsn_(Dir) ->
     BaseHg = "hg -R \"" ++ rebar_utils:escape_double_quotes(Dir) ++ "\" ",
     Ref = get_ref(Dir),
     Cmd = BaseHg ++ "log --template \"{latesttag}+build.{latesttagdistance}.rev.{node|short}\""
-          " --rev " ++ Ref,
+        " --rev " ++ Ref,
     AbortMsg = io_lib:format("Version resolution of hg dependency failed in ~ts", [Dir]),
     {ok, VsnString} =
         rebar_utils:sh(Cmd,
@@ -136,9 +136,9 @@ make_vsn_(Dir) ->
     RawVsn = rebar_string:trim(VsnString, both, "\n"),
 
     Vsn = case RawVsn of
-        "null+" ++ Rest -> "0.0.0+" ++ Rest;
-        _ -> RawVsn
-    end,
+              "null+" ++ Rest -> "0.0.0+" ++ Rest;
+              _ -> RawVsn
+          end,
     {plain, Vsn}.
 
 %%% Internal functions
@@ -159,9 +159,9 @@ get_tag_distance(Dir, Ref) ->
     AbortMsg = io_lib:format("Get tag distance of hg dependency failed in ~ts", [Dir]),
     {ok, LogString} =
         rebar_utils:sh("hg -R \"" ++ rebar_utils:escape_double_quotes(Dir) ++ "\" "
-                      "log --template \"{latesttag}-{latesttagdistance}\n\" "
-                      "--rev " ++ rebar_utils:escape_chars(Ref),
-                      [{use_stdout, false}, {debug_abort_on_error, AbortMsg}]),
+                       "log --template \"{latesttag}-{latesttagdistance}\n\" "
+                       "--rev " ++ rebar_utils:escape_chars(Ref),
+                       [{use_stdout, false}, {debug_abort_on_error, AbortMsg}]),
     Log = rebar_string:trim(LogString,
                             both, "\n"),
     [Tag, Distance] = re:split(Log, "-([0-9]+)$",
@@ -172,7 +172,7 @@ get_branch_ref(Dir, Branch) ->
     AbortMsg = io_lib:format("Get branch ref of hg dependency failed in ~ts", [Dir]),
     {ok, BranchRefString} =
         rebar_utils:sh("hg -R \"" ++ rebar_utils:escape_double_quotes(Dir) ++
-                       "\" log --template \"{node}\n\" --rev " ++ rebar_utils:escape_chars(Branch),
+                           "\" log --template \"{node}\n\" --rev " ++ rebar_utils:escape_chars(Branch),
                        [{use_stdout, false}, {debug_abort_on_error, AbortMsg}]),
     rebar_string:trim(BranchRefString, both, "\n").
 

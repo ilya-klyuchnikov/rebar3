@@ -85,14 +85,14 @@ run_tests(State, Tests) ->
     ?DEBUG("with options:~n\t{eunit_opts, ~p}.", [EUnitOpts]),
     apply_sys_config(State),
     try eunit:test(T, EUnitOpts) of
-      Result ->
-        ok = maybe_write_coverdata(State),
-        case handle_results(Result) of
-            {error, Reason} ->
-                ?PRV_ERROR(Reason);
-            ok ->
-                {ok, State}
-        end
+        Result ->
+            ok = maybe_write_coverdata(State),
+            case handle_results(Result) of
+                {error, Reason} ->
+                    ?PRV_ERROR(Reason);
+                ok ->
+                    {ok, State}
+            end
     catch error:badarg -> ?PRV_ERROR({error, badarg})
     end.
 
@@ -103,7 +103,7 @@ format_error({error_running_tests, Reason}) ->
     io_lib:format("Error running tests: ~p", [Reason]);
 format_error({eunit_test_errors, Errors}) ->
     io_lib:format(lists:concat(["Error Running EUnit Tests:"] ++
-                               lists:map(fun(Error) -> "~n  " ++ Error end, Errors)), []);
+                                   lists:map(fun(Error) -> "~n  " ++ Error end, Errors)), []);
 format_error({badconfig, {Msg, {Value, Key}}}) ->
     io_lib:format(Msg, [Value, Key]);
 format_error({generator, Value}) ->
@@ -140,7 +140,7 @@ resolve_tests(State) ->
     Suites       = resolve(suite, module, RawOpts),
     Generators   = resolve(generator, RawOpts),
     lists:append([Apps, Applications, Dirs, Files, Modules, Tests, Suites,
-        		  Generators]).
+                  Generators]).
 
 resolve(Flag, RawOpts) -> resolve(Flag, Flag, RawOpts).
 
@@ -224,13 +224,13 @@ dedupe_tests({AppMods, TestMods}) ->
     %% for each modules in TestMods create a test if there is not a module
     %% in AppMods that will trigger it
     F = fun(TestMod) ->
-        M = filename:rootname(filename:basename(TestMod)),
-        MatchesTest = fun(AppMod) -> filename:rootname(filename:basename(AppMod)) ++ "_tests" == M end,
-        case lists:any(MatchesTest, AppMods) of
-            false -> {true, {module, list_to_atom(M)}};
-            true  -> false
-        end
-    end,
+                M = filename:rootname(filename:basename(TestMod)),
+                MatchesTest = fun(AppMod) -> filename:rootname(filename:basename(AppMod)) ++ "_tests" == M end,
+                case lists:any(MatchesTest, AppMods) of
+                    false -> {true, {module, list_to_atom(M)}};
+                    true  -> false
+                end
+        end,
     rebar_utils:filtermap(F, UniqueTestMods).
 
 inject_eunit_state(State, {ok, Tests}) ->
@@ -291,8 +291,8 @@ safe_define_eunit_macro(Opts) ->
     %% defining a compile macro twice results in an exception so
     %% make sure 'EUNIT' is only defined once
     case test_defined(Opts) of
-       true  -> Opts;
-       false -> [{d, 'EUNIT'}|Opts]
+        true  -> Opts;
+        false -> [{d, 'EUNIT'}|Opts]
     end.
 
 test_defined([{d, 'EUNIT'}|_]) -> true;
@@ -430,12 +430,12 @@ resolve_eunit_opts(State) ->
     {Opts, _} = rebar_state:command_parsed_args(State),
     EUnitOpts = rebar_state:get(State, eunit_opts, []),
     EUnitOpts1 = case proplists:get_value(verbose, Opts, false) of
-                    true  -> set_verbose(EUnitOpts);
-                    false -> EUnitOpts
+                     true  -> set_verbose(EUnitOpts);
+                     false -> EUnitOpts
                  end,
     EUnitOpts2 = case proplists:get_value(profile, Opts, false) of
-                    true  -> set_profile(EUnitOpts1);
-                    false -> EUnitOpts1
+                     true  -> set_profile(EUnitOpts1);
+                     false -> EUnitOpts1
                  end,
     IsVerbose = lists:member(verbose, EUnitOpts2),
     case proplists:get_value(eunit_formatters, Opts, not IsVerbose) of
@@ -509,24 +509,24 @@ translate(State, [], {file, FilePath}) ->
 
 apply_sys_config(State) ->
     CfgSysCfg = case rebar_state:get(State, eunit_opts, []) of
-        Opts when is_list(Opts) ->
-            case proplists:get_value(sys_config, Opts, []) of
-                [] -> [];
-                L when is_list(hd(L)) -> L;
-                S when is_list(S) -> [S]
-            end;
-        _ ->
-            []
-    end,
+                    Opts when is_list(Opts) ->
+                        case proplists:get_value(sys_config, Opts, []) of
+                            [] -> [];
+                            L when is_list(hd(L)) -> L;
+                            S when is_list(S) -> [S]
+                        end;
+                    _ ->
+                        []
+                end,
     {RawOpts, _} = rebar_state:command_parsed_args(State),
     SysCfgs = rebar_string:lexemes(
-        proplists:get_value(sys_config, RawOpts, ""),
-        [$,]
-    ) ++ CfgSysCfg,
+                proplists:get_value(sys_config, RawOpts, ""),
+                [$,]
+               ) ++ CfgSysCfg,
     Configs = lists:flatmap(
-        fun(Filename) -> rebar_file_utils:consult_config(State, Filename) end,
-        SysCfgs
-    ),
+                fun(Filename) -> rebar_file_utils:consult_config(State, Filename) end,
+                SysCfgs
+               ),
     %% NB: load the applications (from user directories too) to support OTP < 17
     %% to our best ability.
     rebar_paths:set_paths([deps, plugins], State),
@@ -537,17 +537,17 @@ apply_sys_config(State) ->
 maybe_cover_compile(State) ->
     {RawOpts, _} = rebar_state:command_parsed_args(State),
     State1 = case proplists:get_value(cover, RawOpts, false) of
-        true  -> rebar_state:set(State, cover_enabled, true);
-        false -> State
-    end,
+                 true  -> rebar_state:set(State, cover_enabled, true);
+                 false -> State
+             end,
     rebar_prv_cover:maybe_cover_compile(State1).
 
 maybe_write_coverdata(State) ->
     {RawOpts, _} = rebar_state:command_parsed_args(State),
     State1 = case proplists:get_value(cover, RawOpts, false) of
-        true  -> rebar_state:set(State, cover_enabled, true);
-        false -> State
-    end,
+                 true  -> rebar_state:set(State, cover_enabled, true);
+                 false -> State
+             end,
     Name = proplists:get_value(cover_export_name, RawOpts, ?PROVIDER),
     rebar_prv_cover:maybe_write_coverdata(State1, Name).
 

@@ -37,10 +37,10 @@ format_warning_(_Opts, Warning = {_Tag, {"" = _SrcFile0, 0 = Line}, Msg}, {_Last
         {SrcFile, [lists:flatten(fmt("~n~ts~n~!c~4w~!!: ~ts", [F, Line, String])) | Acc]}
     catch
         ?WITH_STACKTRACE(Error, Reason, Stacktrace)
-            ?DEBUG("Failed to pretty format warning: ~p:~p~n~p",
-                   [Error, Reason, Stacktrace]),
-            {SrcFile, [dialyzer:format_warning(Warning, fullpath) | Acc]}
-    end;
+	?DEBUG("Failed to pretty format warning: ~p:~p~n~p",
+	       [Error, Reason, Stacktrace]),
+	{SrcFile, [dialyzer:format_warning(Warning, fullpath) | Acc]}
+	end;
 
 %% we skip the file header
 format_warning_(_Opts, Warning = {_Tag, {File, Line}, Msg}, {File, Acc}) ->
@@ -71,10 +71,10 @@ format_warning_(Opts, Warning = {_Tag, {SrcFile, Line}, Msg}, {_LastFile, Acc}) 
         {SrcFile, [lists:flatten(fmt(Fmt, Args)) | Acc]}
     catch
         ?WITH_STACKTRACE(Error, Reason, Stacktrace)
-            ?DEBUG("Failed to pretty format warning: ~p:~p~n~p",
-                   [Error, Reason, Stacktrace]),
-            {SrcFile, [dialyzer:format_warning(Warning, fullpath) | Acc]}
-    end.
+	?DEBUG("Failed to pretty format warning: ~p:~p~n~p",
+	       [Error, Reason, Stacktrace]),
+	{SrcFile, [dialyzer:format_warning(Warning, fullpath) | Acc]}
+	end.
 
 fmt(Fmt) ->
     cf:format(Fmt, []).

@@ -41,13 +41,13 @@ download_source(AppInfo, State)  ->
     catch
         %% if already a PRV_ERROR format just re-raise it
         ?WITH_STACKTRACE(error, {error, {Module, Reason}}, S)
-            erlang:raise(error, {error, {Module, Reason}}, S);
+        erlang:raise(error, {error, {Module, Reason}}, S);
         throw:{no_resource, Type, Location} ->
             throw(?PRV_ERROR({no_resource, Location, Type}));
         ?WITH_STACKTRACE(C,T,S)
-            ?DIAGNOSTIC("rebar_fetch exception ~p ~p ~p", [C, T, S]),
-            throw(?PRV_ERROR({fetch_fail, rebar_app_info:source(AppInfo)}))
-    end.
+        ?DIAGNOSTIC("rebar_fetch exception ~p ~p ~p", [C, T, S]),
+        throw(?PRV_ERROR({fetch_fail, rebar_app_info:source(AppInfo)}))
+        end.
 
 download_source_(AppInfo, State) ->
     AppDir = rebar_app_info:dir(AppInfo),

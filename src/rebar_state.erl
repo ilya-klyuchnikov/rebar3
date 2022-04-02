@@ -98,7 +98,7 @@ new(Config) when is_list(Config) ->
 
 -spec new(t() | atom(), list()) -> t().
 new(Profile, Config) when is_atom(Profile)
-                        , is_list(Config) ->
+			  , is_list(Config) ->
     Opts = base_opts(Config),
     BaseState = base_state(Opts),
     BaseState#state_t{dir = rebar_dir:get_cwd(),
@@ -517,10 +517,10 @@ create_logic_providers(ProviderModules, State0) ->
                     end, State0, ProviderModules)
     catch
         ?WITH_STACKTRACE(C,T,S)
-            ?DEBUG("~p: ~p ~p", [C, T, S]),
-            ?CRASHDUMP("~p: ~p~n~p~n~n~p", [C, T, S, State0]),
-            throw({error, "Failed creating providers. Run with DIAGNOSTIC=1 for stacktrace or consult rebar3.crashdump."})
-    end.
+	?DEBUG("~p: ~p ~p", [C, T, S]),
+	?CRASHDUMP("~p: ~p~n~p~n~n~p", [C, T, S, State0]),
+	throw({error, "Failed creating providers. Run with DIAGNOSTIC=1 for stacktrace or consult rebar3.crashdump."})
+	end.
 
 to_list(#state_t{} = State) ->
     Fields = record_info(fields, state_t),

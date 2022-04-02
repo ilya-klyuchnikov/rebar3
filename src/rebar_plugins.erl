@@ -21,8 +21,8 @@ project_plugins_install(State) ->
     Profiles = rebar_state:current_profiles(State),
     State1 = rebar_state:allow_provider_overrides(State, true),
     State2 = lists:foldl(fun(Profile, StateAcc) ->
-                             Plugins = rebar_state:get(State, {project_plugins, Profile}, []),
-                             handle_plugins(Profile, Plugins, StateAcc)
+                                 Plugins = rebar_state:get(State, {project_plugins, Profile}, []),
+                                 handle_plugins(Profile, Plugins, StateAcc)
                          end, State1, Profiles),
     rebar_state:allow_provider_overrides(State2, false).
 
@@ -66,9 +66,9 @@ install(State, AppInfo) ->
     State1 = rebar_state:set(State, overrides, AllOverrides),
 
     State2 = lists:foldl(fun(Profile, StateAcc) ->
-                             Plugins = rebar_app_info:get(AppInfo, {plugins, Profile}, []),
-                             Plugins1 = filter_existing_plugins(Plugins, StateAcc),
-                             handle_plugins(Profile, Plugins1, StateAcc)
+                                 Plugins = rebar_app_info:get(AppInfo, {plugins, Profile}, []),
+                                 Plugins1 = filter_existing_plugins(Plugins, StateAcc),
+                                 handle_plugins(Profile, Plugins1, StateAcc)
                          end, State1, Profiles),
 
     %% Reset the overrides after processing the dep
@@ -100,7 +100,7 @@ handle_plugins(Profile, Plugins, State, Upgrade) ->
                             {NewPlugins, NewState} = handle_plugin(Profile, Plugin, StateAcc, Upgrade),
                             NewState1 = rebar_state:create_logic_providers(NewPlugins, NewState),
                             {PluginAcc++NewPlugins, NewState1}
-                      end, {[], State1}, Plugins),
+                    end, {[], State1}, Plugins),
 
     %% reset deps dir
     State3 = rebar_state:set(State2, deps_dir, DepsDir),
@@ -133,10 +133,10 @@ handle_plugin(Profile, Plugin, State, Upgrade) ->
         {plugin_providers(Plugin), State4}
     catch
         ?WITH_STACKTRACE(C,T,S)
-            ?DEBUG("~p ~p ~p", [C, T, S]),
-            ?WARN("Errors loading plugin ~p. Run rebar3 with DEBUG=1 set to see errors.", [Plugin]),
-            {[], State}
-    end.
+        ?DEBUG("~p ~p ~p", [C, T, S]),
+        ?WARN("Errors loading plugin ~p. Run rebar3 with DEBUG=1 set to see errors.", [Plugin]),
+        {[], State}
+        end.
 
 build_plugins(MustBuildApps, AllApps, State) ->
     State1 = rebar_state:deps_to_build(State, MustBuildApps),

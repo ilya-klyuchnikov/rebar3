@@ -74,9 +74,9 @@ post_end_per_testcase(_TC,_Config,ok,State) ->
     {ok, State};
 post_end_per_testcase(TC,_Config,Error,State=#state{suite=Suite, groups=Groups, acc=Acc}) ->
     Test = case TC of
-        {_Group, Case} -> Case;
-        TC -> TC
-    end,
+	       {_Group, Case} -> Case;
+	       TC -> TC
+	   end,
     {Error, State#state{acc=[{Suite, Groups, Test}|Acc]}}.
 
 %% @doc Called after post_init_per_suite, post_end_per_suite, post_init_per_group,
@@ -88,15 +88,15 @@ on_tc_fail(_TC, _Reason, State) ->
 %% or due to an init function failing. (>= 19.3)
 on_tc_skip(Suite, TC, {tc_auto_skip, _}, State=#state{suite=Suite, groups=Groups, acc=Acc}) ->
     NewAcc = case TC of
-        init_per_testcase -> Acc;
-        end_per_testcase -> Acc;
-        {init_per_group,_} -> Acc;
-        {end_per_group, _} -> Acc;
-        init_per_suite -> Acc;
-        end_per_suite -> Acc;
-        {Case, _Group} -> [{Suite, Groups, Case}|Acc];
-        TC -> [{Suite, Groups, TC}|Acc]
-    end,
+		 init_per_testcase -> Acc;
+		 end_per_testcase -> Acc;
+		 {init_per_group,_} -> Acc;
+		 {end_per_group, _} -> Acc;
+		 init_per_suite -> Acc;
+		 end_per_suite -> Acc;
+		 {Case, _Group} -> [{Suite, Groups, Case}|Acc];
+		 TC -> [{Suite, Groups, TC}|Acc]
+	     end,
     State#state{suite=Suite, acc=NewAcc};
 on_tc_skip(Suite, _TC, _Reason, State) ->
     State#state{suite=Suite}.
@@ -105,15 +105,15 @@ on_tc_skip(Suite, _TC, _Reason, State) ->
 %% or due to an init function failing. (Pre-19.3)
 on_tc_skip(TC, {tc_auto_skip, _}, State=#state{suite=Suite, groups=Groups, acc=Acc}) ->
     NewAcc = case TC of
-        init_per_testcase -> Acc;
-        end_per_testcase -> Acc;
-        {init_per_group,_} -> Acc;
-        {end_per_group, _} -> Acc;
-        init_per_suite -> Acc;
-        end_per_suite -> Acc;
-        {Case, _Group} -> [{Suite, Groups, Case}|Acc];
-        TC -> [{Suite, Groups, TC}|Acc]
-    end,
+		 init_per_testcase -> Acc;
+		 end_per_testcase -> Acc;
+		 {init_per_group,_} -> Acc;
+		 {end_per_group, _} -> Acc;
+		 init_per_suite -> Acc;
+		 end_per_suite -> Acc;
+		 {Case, _Group} -> [{Suite, Groups, Case}|Acc];
+		 TC -> [{Suite, Groups, TC}|Acc]
+	     end,
     State#state{acc=NewAcc};
 on_tc_skip(_TC, _Reason, State) ->
     State.
@@ -128,7 +128,7 @@ terminate(#state{acc=Acc}) ->
     io:format(user,
               "EXPERIMENTAL: Writing retry specification at ~s~n"
               "              call rebar3 ct with '--retry' to re-run failing cases.~n",
-             [Path]),
+	      [Path]),
     file:write_file(Path, Spec),
     ok.
 

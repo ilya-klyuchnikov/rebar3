@@ -78,10 +78,10 @@ is_app_src(Filename) ->
 app_src_to_app(OutDir, Filename, State) ->
     Extensions = rebar_state:get(State, application_resource_extensions, ?DEFAULT_APP_RESOURCE_EXT),
     [AppFile | _] = [
-        filename:join([OutDir, "ebin", filename:basename(Filename, Ext) ++ ".app"])
-        || Ext <- Extensions
-        , lists:suffix(Ext, Filename)
-    ],
+                     filename:join([OutDir, "ebin", filename:basename(Filename, Ext) ++ ".app"])
+                     || Ext <- Extensions
+                            , lists:suffix(Ext, Filename)
+                    ],
     AppFile.
 
 %% @doc checks whether the .app file has all the required data to be valid,
@@ -234,7 +234,7 @@ parse_dep(Parent, {Name, {pkg, PkgName, Vsn}, Level}, DepsDir, IsLock, State) wh
 parse_dep(Parent, {Name, {pkg, PkgName, Vsn, OldHash,  Hash}, Level}, DepsDir, IsLock, State) when is_integer(Level) ->
     dep_to_app(Parent, DepsDir, Name, Vsn, {pkg, PkgName, Vsn, OldHash, Hash}, IsLock, State);
 parse_dep(Parent, {Name, Source, Level}, DepsDir, IsLock, State) when is_tuple(Source)
-                                                                    , is_integer(Level) ->
+                                                                      , is_integer(Level) ->
     dep_to_app(Parent, DepsDir, Name, [], Source, IsLock, State);
 parse_dep(_, Dep, _, _, _) ->
     throw(?PRV_ERROR({parse_dep, Dep})).
@@ -305,14 +305,14 @@ subdir(_, Source) ->
 %% @doc Takes a given application app_info record along with the project.
 %% If the app is a package, resolve and expand the package definition.
 -spec expand_deps_sources(rebar_app_info:t(), rebar_state:t()) ->
-    rebar_app_info:t().
+          rebar_app_info:t().
 expand_deps_sources(Dep, State) ->
     update_source(Dep, rebar_app_info:source(Dep), State).
 
 %% @doc sets the source for a given dependency or app along with metadata
 %% around version if required.
 -spec update_source(rebar_app_info:t(), Source, rebar_state:t()) ->
-    rebar_app_info:t() when
+          rebar_app_info:t() when
       Source :: rebar_resource_v2:source()
               | {pkg, PkgName::string(), PkgVsn::unicode:unicode_binary(), Hash::undefined|binary()}
               | {pkg, PkgName::string(), PkgVsn::unicode:unicode_binary(), OldHash::undefined|binary(), Hash::undefined|binary()}.
@@ -385,7 +385,7 @@ retire_reason(_Other) ->
 %% @private checks that all the beam files have been properly
 %% created.
 -spec has_all_beams(file:filename_all(), [module()]) ->
-    true | ?PRV_ERROR({missing_module, module()}).
+          true | ?PRV_ERROR({missing_module, module()}).
 has_all_beams(EbinDir, [Module | ModuleList]) ->
     BeamFile = filename:join([EbinDir, rebar_utils:to_list(Module) ++ ".beam"]),
     case filelib:is_file(BeamFile) of

@@ -129,13 +129,13 @@ new() ->
 
 %% @doc Build a new app info value with only the app name set.
 -spec new(atom() | binary() | string()) ->
-                 {ok, t()}.
+	  {ok, t()}.
 new(AppName) ->
     {ok, #app_info_t{name=rebar_utils:to_binary(AppName)}}.
 
 %% @doc Build a new app info value with only the name and version set.
 -spec new(atom() | binary() | string(), app_vsn()) ->
-                 {ok, t()}.
+	  {ok, t()}.
 new(AppName, Vsn) ->
     {ok, #app_info_t{name=rebar_utils:to_binary(AppName),
                      vsn=Vsn,
@@ -143,7 +143,7 @@ new(AppName, Vsn) ->
 
 %% @doc build a complete version of the app info with all fields set.
 -spec new(atom() | binary() | string(), app_vsn(), file:name()) ->
-                 {ok, t()}.
+	  {ok, t()}.
 new(AppName, Vsn, Dir) ->
     {ok, #app_info_t{name=rebar_utils:to_binary(AppName),
                      vsn=Vsn,
@@ -155,7 +155,7 @@ new(AppName, Vsn, Dir) ->
 
 %% @doc build a complete version of the app info with all fields set.
 -spec new(atom() | binary() | string(), app_vsn(), file:name(), list()) ->
-                 {ok, t()}.
+	  {ok, t()}.
 new(AppName, Vsn, Dir, Deps) ->
     {ok, #app_info_t{name=rebar_utils:to_binary(AppName),
                      vsn=Vsn,
@@ -168,7 +168,7 @@ new(AppName, Vsn, Dir, Deps) ->
 
 %% @doc build a complete version of the app info with all fields set.
 -spec new(atom() | binary(), atom() | binary() | string(), app_vsn(), file:name(), list()) ->
-                 {ok, t()}.
+	  {ok, t()}.
 new(Parent, AppName, Vsn, Dir, Deps) ->
     {ok, #app_info_t{name=rebar_utils:to_binary(AppName),
                      parent=Parent,
@@ -404,7 +404,7 @@ app_details(AppInfo=#app_info_t{app_details=[]}) ->
             catch
                 throw:{error, {Module, Reason}} ->
                     ?DEBUG("Warning, falling back to .app.src because of: ~ts",
-                          [Module:format_error(Reason)]),
+			   [Module:format_error(Reason)]),
                     case rebar_config:consult_app_file(app_file_src(AppInfo)) of
                         [] -> [];
                         [{application, _Name, AppDetails}] -> AppDetails
@@ -523,7 +523,7 @@ fetch_dir(#app_info_t{fetch_dir=FetchDir}) ->
     FetchDir.
 
 %% @doc returns the directory to fetch the dep source to
- -spec fetch_dir(t(), file:name()) -> t().
+-spec fetch_dir(t(), file:name()) -> t().
 fetch_dir(AppInfo=#app_info_t{}, FetchDir) ->
     AppInfo#app_info_t{fetch_dir=FetchDir}.
 

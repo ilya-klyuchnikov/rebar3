@@ -192,7 +192,7 @@ extract_pkg_hashes(Attrs) ->
                 [First|_] -> First;
                 [] -> []
             end,
-     { proplists:get_value(pkg_hash, Props, []), proplists:get_value(pkg_hash_ext, Props, [])}.
+    { proplists:get_value(pkg_hash, Props, []), proplists:get_value(pkg_hash_ext, Props, [])}.
 
 %% @private extract attributes from the lock file and integrate them
 %% into the full-blow internal lock format
@@ -281,7 +281,7 @@ verify_config_format([Term | _]) ->
 %% and merges the locks into the config.
 -spec merge_locks([{_,_}], list()) -> [{_,_}].
 merge_locks(Config, []) ->
-%% no lockfile
+    %% no lockfile
     Config;
 merge_locks(Config, Locks) ->
     %% lockfile with entries
@@ -308,8 +308,8 @@ format_error({bad_dep_name, Dep}) ->
 %% @private consults a consult file, then executes its related script file
 %% with the data returned from the consult.
 -spec consult_and_eval(File::file:name_all(), Script::file:name_all()) ->
-                              {ok, Terms::[term()]} |
-                              {error, Reason::term()}.
+          {ok, Terms::[term()]} |
+          {error, Reason::term()}.
 consult_and_eval(File, Script) ->
     ?DEBUG("Evaluating config script ~p", [Script]),
     StateData = rebar_file_utils:try_consult(File),

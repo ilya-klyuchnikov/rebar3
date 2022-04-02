@@ -47,7 +47,7 @@
 -define(DEPS, [app_discovery]).
 
 -type src_dep() :: {atom(), {atom(), string(), string()}}
-             | {atom(), string(), {atom(), string(), string()}}.
+                 | {atom(), string(), {atom(), string(), string()}}.
 -type pkg_dep() :: {atom(), binary()} | atom().
 
 -type dep() :: src_dep() | pkg_dep().
@@ -183,9 +183,9 @@ handle_profile_level([{Profile, Deps, Level} | Rest], Apps, RootSeen, Seen, Upgr
         update_deps(Profile, Level, Deps0, Apps
                    ,State, Upgrade, Seen, Locks),
     Deps2 = case Deps1 of
-        [] -> Rest;
-        _ -> Rest ++ [{Profile, Deps1, Level+1}]
-    end,
+                [] -> Rest;
+                _ -> Rest ++ [{Profile, Deps1, Level+1}]
+            end,
     handle_profile_level(Deps2, Apps1, RootSeen, sets:union(Seen, Seen1), Upgrade, Locks, State1).
 
 find_cycles(Apps) ->
@@ -420,7 +420,7 @@ maybe_upgrade(AppInfo, _AppDir, Upgrade, State) ->
 
 warn_skip_deps(AppInfo, State) ->
     Msg = "Skipping ~ts as an app of the same name "
-          "has already been fetched",
+        "has already been fetched",
     Args = [rebar_resource_v2:format_source(AppInfo)],
     case rebar_state:get(State, deps_error_on_conflict, false) of
         false ->
@@ -436,7 +436,7 @@ warn_skip_deps(AppInfo, State) ->
 not_needs_compile(App) ->
     not(rebar_app_info:is_checkout(App))
         andalso rebar_app_info:valid(App)
-          andalso rebar_app_info:has_all_artifacts(App) =:= true.
+        andalso rebar_app_info:has_all_artifacts(App) =:= true.
 
 find_app_and_level_by_name([], _) ->
     false;

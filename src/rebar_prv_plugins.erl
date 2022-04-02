@@ -17,17 +17,17 @@
 -spec init(rebar_state:t()) -> {ok, rebar_state:t()}.
 init(State) ->
     State1 = rebar_state:add_provider(
-            State,
-            providers:create([
-                    {name, ?PROVIDER},
-                    {module, ?MODULE},
-                    {namespace, ?NAMESPACE},
-                    {bare, true},
-                    {deps, ?DEPS},
-                    {example, "rebar3 plugins list"},
-                    {short_desc, "List local and global plugins for this project"},
-                    {desc, "List local and global plugins for this project"},
-                    {opts, []}])),
+	       State,
+	       providers:create([
+				 {name, ?PROVIDER},
+				 {module, ?MODULE},
+				 {namespace, ?NAMESPACE},
+				 {bare, true},
+				 {deps, ?DEPS},
+				 {example, "rebar3 plugins list"},
+				 {short_desc, "List local and global plugins for this project"},
+				 {desc, "List local and global plugins for this project"},
+				 {opts, []}])),
     {ok, State1}.
 
 -spec do(rebar_state:t()) -> {ok, rebar_state:t()} | {error, string()}.
@@ -59,16 +59,16 @@ format_error(Reason) ->
 
 list_local_plugins(State) ->
     LocalPluginsDefs = rebar_state:get(State, plugins, [])
-                       ++ rebar_state:get(State, project_plugins, []),
+	++ rebar_state:get(State, project_plugins, []),
     LocalPluginsNames = lists:map(
-                            fun (LocalPluginDef) ->
-                                rebar_utils:to_atom(
+			  fun (LocalPluginDef) ->
+				  rebar_utils:to_atom(
                                     if is_tuple(LocalPluginDef) -> element(1, LocalPluginDef);
                                        true -> LocalPluginDef
                                     end
-                                )
-                            end,
-                            LocalPluginsDefs),
+				   )
+			  end,
+			  LocalPluginsDefs),
     {LocalPluginsDefs, LocalPluginsNames}.
 
 display_plugins(_Header, _Apps, []) ->

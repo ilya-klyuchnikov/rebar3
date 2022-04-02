@@ -45,14 +45,14 @@
 -spec init(rebar_state:t()) -> {ok, rebar_state:t()}.
 init(State) ->
     Provider = providers:create([
-                                {name, ?PROVIDER},
-                                {module, ?MODULE},
-                                {bare, true},
-                                {deps, ?DEPS},
-                                {example, "rebar3 escriptize"},
-                                {opts, opt_spec_list()},
-                                {short_desc, "Generate escript archive."},
-                                {desc, desc()}
+                                 {name, ?PROVIDER},
+                                 {module, ?MODULE},
+                                 {bare, true},
+                                 {deps, ?DEPS},
+                                 {example, "rebar3 escriptize"},
+                                 {opts, opt_spec_list()},
+                                 {short_desc, "Generate escript archive."},
+                                 {desc, desc()}
                                 ]),
     {ok, rebar_state:add_provider(State, Provider)}.
 
@@ -71,22 +71,22 @@ do(State) ->
     {Opts, _} = rebar_state:command_parsed_args(State),
     ConfiguredMainApp = rebar_state:get(State, escript_main_app, undefined),
     AppInfo0 = case proplists:get_value(main_app, Opts, ConfiguredMainApp) of
-        undefined ->
-            case rebar_state:project_apps(State) of
-                [AppInfo] ->
-                    AppInfo;
-                _ ->
-                    ?PRV_ERROR(no_main_app)
-            end;
-        Name ->
-            AllApps = rebar_state:all_deps(State)++rebar_state:project_apps(State),
-            case rebar_app_utils:find(rebar_utils:to_binary(Name), AllApps) of
-                {ok, AppInfo} ->
-                    AppInfo;
-                _ ->
-                    ?PRV_ERROR({bad_name, Name})
-            end
-    end,
+                   undefined ->
+                       case rebar_state:project_apps(State) of
+                           [AppInfo] ->
+                               AppInfo;
+                           _ ->
+                               ?PRV_ERROR(no_main_app)
+                       end;
+                   Name ->
+                       AllApps = rebar_state:all_deps(State)++rebar_state:project_apps(State),
+                       case rebar_app_utils:find(rebar_utils:to_binary(Name), AllApps) of
+                           {ok, AppInfo} ->
+                               AppInfo;
+                           _ ->
+                               ?PRV_ERROR({bad_name, Name})
+                       end
+               end,
     case AppInfo0 of
         {error, _} = Err ->
             Err;
@@ -94,10 +94,10 @@ do(State) ->
             AppInfo1 = rebar_hooks:run_all_hooks(Cwd, pre, ?PROVIDER, Providers, AppInfo0, State),
             ?INFO("Building escript for ~s...", [rebar_app_info:name(AppInfo0)]),
             Res = try
-                escriptize(State, AppInfo1)
-            catch
-                throw:Err=?PRV_ERROR(_) -> Err
-            end,
+                      escriptize(State, AppInfo1)
+                  catch
+                      throw:Err=?PRV_ERROR(_) -> Err
+                  end,
             rebar_hooks:run_all_hooks(Cwd, post, ?PROVIDER, Providers, AppInfo1, State),
             Res
     end.
@@ -168,12 +168,12 @@ format_error({zip_error, AppName, ZipError}) ->
     io_lib:format("Failed to construct ~p escript: ~p", [AppName, ZipError]);
 format_error({bad_name, App}) ->
     io_lib:format("Failed to get ebin/ directory for "
-                   "escript_incl_app: ~p", [App]);
+                  "escript_incl_app: ~p", [App]);
 format_error({bad_app, App}) ->
     io_lib:format("Failed to find application ~p", [App]);
 format_error(no_main_app) ->
     io_lib:format("Multiple project apps and {escript_main_app, atom()}."
-                 " not set in rebar.config", []).
+                  " not set in rebar.config", []).
 
 %% ===================================================================
 %% Internal functions
@@ -211,15 +211,15 @@ get_extra(State) ->
     InclPrivPaths = lists:map(fun(Entry) ->
                                       resolve_incl_priv(Entry, AllApps)
                               end, InclPriv),
-    % `escript_incl_extra` is kept for historical reasons as its internal use in
-    % rebar3 has been replaced with `escript_incl_priv`.
+                                                % `escript_incl_extra` is kept for historical reasons as its internal use in
+                                                % rebar3 has been replaced with `escript_incl_priv`.
     InclExtraPaths = rebar_state:get(State, escript_incl_extra, []),
     lists:foldl(fun({Wildcard, Dir}, Files) ->
                         load_files(Wildcard, Dir) ++ Files
                 end, [], InclPrivPaths ++ InclExtraPaths).
 
-% Converts a wildcard path relative to an app (e.g., `priv/*`) into a wildcard
-% path with with the app name included (e.g., `relx/priv/*`).
+                                                % Converts a wildcard path relative to an app (e.g., `priv/*`) into a wildcard
+                                                % path with with the app name included (e.g., `relx/priv/*`).
 resolve_incl_priv({AppName, PrivWildcard}, AllApps) when is_atom(AppName) ->
     {ok, AppInfo} =
         rebar_app_utils:find(rebar_utils:to_binary(AppName), AllApps),
@@ -276,28 +276,28 @@ get_nonempty(Files) ->
 find_deps(AppNames, AllApps, State) ->
     BinAppNames = [rebar_utils:to_binary(Name) || Name <- AppNames],
     [ec_cnv:to_atom(Name) ||
-     Name <- find_deps_of_deps(BinAppNames, AllApps, State, BinAppNames)].
+        Name <- find_deps_of_deps(BinAppNames, AllApps, State, BinAppNames)].
 
 %% Should look at the app files to find direct dependencies
 find_deps_of_deps([], _, _, Acc) -> Acc;
 find_deps_of_deps([Name|Names], Apps, State, Acc) ->
     ?DIAGNOSTIC("processing ~p", [Name]),
     App = case rebar_app_utils:find(Name, Apps) of
-        {ok, Found} ->
-            Found;
-        error ->
-            case find_external_app(Name, State) of
-                error -> throw(?PRV_ERROR({bad_app, binary_to_atom(Name, utf8)}));
-                App0 -> App0
-            end
-    end,
+              {ok, Found} ->
+                  Found;
+              error ->
+                  case find_external_app(Name, State) of
+                      error -> throw(?PRV_ERROR({bad_app, binary_to_atom(Name, utf8)}));
+                      App0 -> App0
+                  end
+          end,
     DepNames = proplists:get_value(applications, rebar_app_info:app_details(App), []),
     BinDepNames = [rebar_utils:to_binary(Dep) || Dep <- DepNames,
-                   %% ignore system libs; shouldn't include them.
-                   DepDir <- [code:lib_dir(Dep)],
-                   DepDir =:= {error, bad_name} orelse % those are all local
-                   not lists:prefix(code:root_dir(), DepDir)]
-                -- ([Name|Names]++Acc), % avoid already seen deps
+                                                 %% ignore system libs; shouldn't include them.
+                                                 DepDir <- [code:lib_dir(Dep)],
+                                                 DepDir =:= {error, bad_name} orelse % those are all local
+                                                     not lists:prefix(code:root_dir(), DepDir)]
+        -- ([Name|Names]++Acc), % avoid already seen deps
     ?DIAGNOSTIC("new deps of ~p found to be ~p", [Name, BinDepNames]),
     find_deps_of_deps(BinDepNames ++ Names, Apps, State, BinDepNames ++ Acc).
 

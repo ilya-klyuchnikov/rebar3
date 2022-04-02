@@ -170,14 +170,14 @@ keyall(Key, List) ->
 
 get_behaviour_callbacks(exports_not_used, Attributes) ->
     lists:map(fun(Mod) ->
-        try
-            Mod:behaviour_info(callbacks)
-        catch
-            error:undef ->
-                ?WARN("Behaviour ~p is used but cannot be found.", [Mod]),
-                []
-        end
-    end, keyall(behaviour, Attributes) ++ keyall(behavior, Attributes));
+                      try
+                          Mod:behaviour_info(callbacks)
+                      catch
+                          error:undef ->
+                              ?WARN("Behaviour ~p is used but cannot be found.", [Mod]),
+                              []
+                      end
+              end, keyall(behaviour, Attributes) ++ keyall(behavior, Attributes));
 get_behaviour_callbacks(_XrefCheck, _Attributes) ->
     [].
 
@@ -190,17 +190,17 @@ filter_xref_results(XrefCheck, XrefIgnores, XrefResults) ->
                         end, XrefResults)),
 
     Ignores = XrefIgnores ++ lists:flatmap(fun(Module) ->
-                                    get_xref_ignorelist(Module, XrefCheck)
-                            end, SearchModules),
+                                                   get_xref_ignorelist(Module, XrefCheck)
+                                           end, SearchModules),
     lists:filter( fun(Result) -> pred_xref_result(Result, Ignores) end, XrefResults).
 
 pred_xref_result({Src, Dest}, Ignores) -> pred_xref_result1(Src, Ignores)
-    andalso pred_xref_result1(Dest, Ignores);
+                                              andalso pred_xref_result1(Dest, Ignores);
 pred_xref_result(Vertex, Ignores) -> pred_xref_result1(Vertex, Ignores).
 
 pred_xref_result1(Vertex, Ignores) ->
     Mod = case Vertex of {Module, _Func, _Arity} -> Module;
-             _ -> Vertex end,
+              _ -> Vertex end,
     not lists:member(Vertex, Ignores) andalso not lists:member(Mod, Ignores).
 
 display_results(XrefResults, QueryResults) ->
@@ -289,7 +289,7 @@ find_function_source(M, F, A, Bin) ->
     {ok, {M, [{abstract_code, AbstractCodeLookup}]}} = ChunksLookup,
     case AbstractCodeLookup of
         no_abstract_code ->
-            % There isn't much else we can do at this point
+                                                % There isn't much else we can do at this point
             {module_not_found, function_not_found};
         {raw_abstract_v1, AbstractCode} ->
             find_function_source_in_abstract_code(F, A, AbstractCode)

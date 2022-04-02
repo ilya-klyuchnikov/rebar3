@@ -56,7 +56,7 @@ format_error({invalid_app_file, File, Reason}) ->
     case Reason of
         {Line, erl_parse, Description} ->
             io_lib:format("Invalid app file ~ts at line ~b: ~p",
-                [File, Line, lists:flatten(Description)]);
+                          [File, Line, lists:flatten(Description)]);
         _ ->
             io_lib:format("Invalid app file ~ts: ~p", [File, Reason])
     end;

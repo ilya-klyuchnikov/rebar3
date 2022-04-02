@@ -75,17 +75,17 @@ get_package(Dep, Vsn, undefined, Repos, Table, State) ->
 get_package(Dep, Vsn, Hash, Repos, Table, State) ->
     ?MODULE:verify_table(State),
     MatchingPackages = ets:select(Table, [{#package{key={Dep, ec_semver:parse(Vsn), Repo},
-                                      _='_'}, [], ['$_']} || Repo <- Repos]),
+						    _='_'}, [], ['$_']} || Repo <- Repos]),
     PackagesWithProperHash = lists:filter(
-        fun(#package{key = {_Dep, _Vsn, Repo}, outer_checksum = PkgChecksum}) ->
-            if (PkgChecksum =/= Hash) andalso (Hash =/= '_') ->
-                ?WARN("Checksum mismatch for package ~ts-~ts from repo ~ts", [Dep, Vsn, Repo]),
-                false;
-            true ->
-                true
-            end
-        end, MatchingPackages
-    ),
+			       fun(#package{key = {_Dep, _Vsn, Repo}, outer_checksum = PkgChecksum}) ->
+				       if (PkgChecksum =/= Hash) andalso (Hash =/= '_') ->
+					       ?WARN("Checksum mismatch for package ~ts-~ts from repo ~ts", [Dep, Vsn, Repo]),
+					       false;
+					  true ->
+					       true
+				       end
+			       end, MatchingPackages
+			      ),
     case PackagesWithProperHash of
         %% have to allow multiple matches in the list for cases that Repo is `_`
         [Package | _] ->
@@ -179,7 +179,7 @@ find_highest_matching(Dep, Constraint, Repo, Table, State) ->
         none ->
             handle_missing_package(Dep, Repo, State,
                                    fun(State1) ->
-                                       find_highest_matching_(Dep, Constraint, Repo, Table, State1)
+					   find_highest_matching_(Dep, Constraint, Repo, Table, State1)
                                    end);
         Result ->
             Result
@@ -187,7 +187,7 @@ find_highest_matching(Dep, Constraint, Repo, Table, State) ->
         _:_ ->
             handle_missing_package(Dep, Repo, State,
                                    fun(State1) ->
-                                       find_highest_matching_(Dep, Constraint, Repo, Table, State1)
+					   find_highest_matching_(Dep, Constraint, Repo, Table, State1)
                                    end)
     end.
 
@@ -278,8 +278,8 @@ get_package_repo_config(RepoConfig) ->
 
 unverified_repo_message() ->
     "The registry repository ~ts uses a record format that has been deprecated for "
-    "security reasons. The repository should be updated in order to be safer. "
-    "You can disable this check by setting REBAR_NO_VERIFY_REPO_ORIGIN=1".
+	"security reasons. The repository should be updated in order to be safer. "
+	"You can disable this check by setting REBAR_NO_VERIFY_REPO_ORIGIN=1".
 
 insert_releases(Name, Releases, Repo, Table) ->
     [true = ets:insert(Table,
@@ -298,8 +298,8 @@ insert_releases(Name, Releases, Repo, Table) ->
                       binary() | undefined,
                       ets:tab(), rebar_state:t())
                      -> {error, {invalid_vsn, unicode:unicode_binary()}} |
-                        not_found |
-                        {ok, #package{}, map()}.
+	  not_found |
+	  {ok, #package{}, map()}.
 %% if checksum is defined search for any matching repo matching pkg-vsn and checksum
 resolve_version(Dep, DepVsn, _OldHash, Hash, HexRegistry, State) when is_binary(Hash) ->
     Resources = rebar_state:resources(State),
@@ -313,23 +313,23 @@ resolve_version(Dep, DepVsn, _OldHash, Hash, HexRegistry, State) when is_binary(
             {ok, Package, RepoConfig};
         _ ->
             Fun = fun(Repo) ->
-                      case resolve_version_(Dep, DepVsn, Repo, HexRegistry, State) of
-                          none ->
-                              not_found;
-                          {ok, Vsn} ->
-                              get_package(Dep, Vsn, Hash, [Repo], HexRegistry, State)
-                      end
+			  case resolve_version_(Dep, DepVsn, Repo, HexRegistry, State) of
+			      none ->
+				  not_found;
+			      {ok, Vsn} ->
+				  get_package(Dep, Vsn, Hash, [Repo], HexRegistry, State)
+			  end
                   end,
             handle_missing_no_exception(Fun, Dep, State)
     end;
 resolve_version(Dep, undefined, _OldHash, Hash, HexRegistry, State) ->
     Fun = fun(Repo) ->
-              case highest_matching(Dep, {0,{[],[]}}, Repo, HexRegistry, State) of
-                  none ->
-                      not_found;
-                  {ok, Vsn} ->
-                      get_package(Dep, Vsn, Hash, [Repo], HexRegistry, State)
-              end
+		  case highest_matching(Dep, {0,{[],[]}}, Repo, HexRegistry, State) of
+		      none ->
+			  not_found;
+		      {ok, Vsn} ->
+			  get_package(Dep, Vsn, Hash, [Repo], HexRegistry, State)
+		  end
           end,
     handle_missing_no_exception(Fun, Dep, State);
 resolve_version(Dep, DepVsn, _OldHash, Hash, HexRegistry, State) ->
@@ -338,12 +338,12 @@ resolve_version(Dep, DepVsn, _OldHash, Hash, HexRegistry, State) ->
             {error, {invalid_vsn, DepVsn}};
         _ ->
             Fun = fun(Repo) ->
-                      case resolve_version_(Dep, DepVsn, Repo, HexRegistry, State) of
-                          none ->
-                              not_found;
-                          {ok, Vsn} ->
-                              get_package(Dep, Vsn, Hash, [Repo], HexRegistry, State)
-                      end
+			  case resolve_version_(Dep, DepVsn, Repo, HexRegistry, State) of
+			      none ->
+				  not_found;
+			      {ok, Vsn} ->
+				  get_package(Dep, Vsn, Hash, [Repo], HexRegistry, State)
+			  end
                   end,
             handle_missing_no_exception(Fun, Dep, State)
     end.

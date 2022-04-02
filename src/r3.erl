@@ -40,12 +40,12 @@ break() ->
                     Self = self(),
                     Ref = make_ref(),
                     spawn_link(fun() ->
-                            register(r3_breakpoint_handler, self()),
-                            receive
-                                resume ->
-                                    Self ! Ref
-                            end
-                    end),
+				       register(r3_breakpoint_handler, self()),
+				       receive
+					   resume ->
+					       Self ! Ref
+				       end
+			       end),
                     io:format(user, "~n=== BREAK ===~n", []),
                     receive
                         Ref -> ok

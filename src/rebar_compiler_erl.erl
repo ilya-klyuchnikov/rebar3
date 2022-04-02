@@ -28,13 +28,13 @@ context(AppInfo) ->
     AbsIncl = [filename:join(OutDir, "include") | % standard include path
                %% includes specified by erl_opts
                lists:map(fun(Incl) -> filename:absname(Incl) end, ErlOptIncludes)] ++
-              %% all source directories are valid, and might also be recursive
-              lists:append([
-                  find_recursive_incl(OutDir, Src, RebarOpts) ||
-                  Src <- rebar_dir:all_src_dirs(RebarOpts, ["src"], [])
-              ]) ++
-              %% top-level dir for legacy stuff
-              [OutDir],
+	%% all source directories are valid, and might also be recursive
+	lists:append([
+		      find_recursive_incl(OutDir, Src, RebarOpts) ||
+			 Src <- rebar_dir:all_src_dirs(RebarOpts, ["src"], [])
+		     ]) ++
+	%% top-level dir for legacy stuff
+	[OutDir],
     PTrans = proplists:get_all_values(parse_transform, ErlOpts),
     Macros = [case Tup of
                   {d,Name} -> Name;
@@ -74,14 +74,14 @@ needed_files(Graph, FoundFiles, _, AppInfo) ->
     %% that none other depend of; the former must be sequentially
     %% built, the rest is parallelizable.
     OtherErls = lists:partition(
-        fun(Erl) -> lists:any(
-            fun(Edge) ->
-                {_E, _V1, _V2, Kind} = digraph:edge(Graph, Edge),
-                Kind =/= artifact
-            end, digraph:in_edges(Graph, Erl)) end,
-        lists:reverse([Dep || Dep <- DepErlsOrdered,
-                              not lists:member(Dep, ErlFirstFiles)])
-    ),
+		  fun(Erl) -> lists:any(
+				fun(Edge) ->
+					{_E, _V1, _V2, Kind} = digraph:edge(Graph, Edge),
+					Kind =/= artifact
+				end, digraph:in_edges(Graph, Erl)) end,
+		  lists:reverse([Dep || Dep <- DepErlsOrdered,
+					not lists:member(Dep, ErlFirstFiles)])
+		 ),
 
     PrivIncludes = [{i, filename:join(OutDir, Src)}
                     || Src <- rebar_dir:all_src_dirs(RebarOpts, ["src"], [])],
@@ -114,10 +114,10 @@ dependencies(Source, _SourceDir, Dirs, DepOpts) ->
           behaviour := Behaviours} ->
             %% TODO: check for core transforms?
             {_MissIncl, _MissInclLib} =/= {[],[]} andalso
-            ?DIAGNOSTIC("Missing: ~p", [{_MissIncl, _MissInclLib}]),
+		?DIAGNOSTIC("Missing: ~p", [{_MissIncl, _MissInclLib}]),
             lists:filtermap(
-                fun (Mod) -> rebar_compiler_epp:resolve_source(Mod, Dirs) end,
-                OptPTrans ++ PTrans ++ Behaviours) ++ AbsIncls
+	      fun (Mod) -> rebar_compiler_epp:resolve_source(Mod, Dirs) end,
+	      OptPTrans ++ PTrans ++ Behaviours) ++ AbsIncls
     catch
         error:{badmatch, {error, Reason}} ->
             case file:format_error(Reason) of
@@ -151,9 +151,9 @@ compile_and_track(Source, [{Ext, OutDir}], Config, ErlOpts) ->
     Target = target_base(OutDir, Source) ++ Ext,
     {ok, CompileVsn} = application:get_key(compiler, vsn),
     AllOpts = case erlang:function_exported(compile, env_compiler_options, 0) of
-        true  -> [{compiler_version, CompileVsn}] ++ BuildOpts ++ compile:env_compiler_options();
-        false -> [{compiler_version, CompileVsn}] ++ BuildOpts
-    end,
+		  true  -> [{compiler_version, CompileVsn}] ++ BuildOpts ++ compile:env_compiler_options();
+		  false -> [{compiler_version, CompileVsn}] ++ BuildOpts
+	      end,
     case compile:file(Source, BuildOpts) of
         {ok, _Mod} ->
             {ok, [{Source, Target, AllOpts}]};
@@ -201,8 +201,8 @@ find_recursive_incl(Base, Src, Opts, true) ->
             [Dir];
         {ok, Files} ->
             [Dir] ++
-            lists:append([find_recursive_incl(Dir, File, Opts)
-                          || File <- Files, filelib:is_dir(filename:join(Dir, File))])
+		lists:append([find_recursive_incl(Dir, File, Opts)
+			      || File <- Files, filelib:is_dir(filename:join(Dir, File))])
     end.
 
 %% Get files which need to be compiled first, i.e. those specified in erl_first_files
@@ -250,8 +250,8 @@ needed_files(Graph, ErlOpts, RebarOpts, Dir, OutDir, SourceFiles) ->
                          Target = TargetBase ++ ".beam",
                          AllOpts = [{outdir, filename:dirname(Target)} | SharedOpts],
                          digraph:vertex(Graph, Source) > {Source, filelib:last_modified(Target)}
-                              orelse opts_changed(Graph, AllOpts, Target, TargetBase)
-                              orelse CompilerOptsSet
+			     orelse opts_changed(Graph, AllOpts, Target, TargetBase)
+			     orelse CompilerOptsSet
                  end, SourceFiles).
 
 target_base(OutDir, Source) ->
@@ -261,18 +261,18 @@ opts_changed(Graph, NewOpts, Target, TargetBase) ->
     ModuleName = list_to_atom(filename:basename(TargetBase)),
     {ok, CompileVsn} = application:get_key(compiler, vsn),
     TotalOpts = case erlang:function_exported(compile, env_compiler_options, 0) of
-        true  -> [{compiler_version, CompileVsn}] ++ NewOpts ++ compile:env_compiler_options();
-        false -> [{compiler_version, CompileVsn}] ++ NewOpts
-    end,
+		    true  -> [{compiler_version, CompileVsn}] ++ NewOpts ++ compile:env_compiler_options();
+		    false -> [{compiler_version, CompileVsn}] ++ NewOpts
+		end,
     TargetOpts = case digraph:vertex(Graph, Target) of
-        {_Target, {artifact, Opts}} -> % tracked dep is found
-            Opts;
-        false -> % not found; might be a non-tracked DAG
-            case compile_info(TargetBase) of
-                {ok, Opts} -> Opts;
-                _ -> []
-            end
-    end,
+		     {_Target, {artifact, Opts}} -> % tracked dep is found
+			 Opts;
+		     false -> % not found; might be a non-tracked DAG
+			 case compile_info(TargetBase) of
+			     {ok, Opts} -> Opts;
+			     _ -> []
+			 end
+		 end,
     lists:any(fun(Option) -> effects_code_generation(ModuleName, Option) end,
               lists:usort(TotalOpts) -- lists:usort(TargetOpts)).
 
@@ -300,7 +300,7 @@ compile_info(Target) ->
             CompileInfo = proplists:get_value(compile_info, Chunks, []),
             CompileVsn = proplists:get_value(version, CompileInfo, "unknown"),
             {ok, [{compiler_version, CompileVsn}
-                  | proplists:get_value(options, CompileInfo, [])]};
+		 | proplists:get_value(options, CompileInfo, [])]};
         {error, beam_lib, Reason} ->
             ?WARN("Couldn't read debug info from ~p for reason: ~p", [Target, Reason]),
             {error, Reason}
@@ -308,9 +308,9 @@ compile_info(Target) ->
 
 erl_compiler_opts_set() ->
     EnvSet = case os:getenv("ERL_COMPILER_OPTIONS") of
-        false -> false;
-        _     -> true
-    end,
+		 false -> false;
+		 _     -> true
+	     end,
     %% return false if changed env opts would have been caught in opts_changed/2
     EnvSet andalso not erlang:function_exported(compile, env_compiler_options, 0).
 
@@ -328,17 +328,17 @@ filter_file_list(FileList) ->
         [] ->
             FileList;
         _ ->
-          atoms_in_erl_first_files_warning(Atoms),
-          lists:filter( fun(X) -> not(is_atom(X)) end, FileList)
-     end.
+	    atoms_in_erl_first_files_warning(Atoms),
+	    lists:filter( fun(X) -> not(is_atom(X)) end, FileList)
+    end.
 
 atoms_in_erl_first_files_warning(Atoms) ->
-  W = "You have provided atoms as file entries in erl_first_files; "
-      "erl_first_files only expects lists of filenames as strings. "
-      "The following modules (~p) may not work as expected and it is advised "
-      "that you change these entries to string format "
-      "(e.g., \"src/module.erl\") ",
-  ?WARN(W, [Atoms]).
+    W = "You have provided atoms as file entries in erl_first_files; "
+	"erl_first_files only expects lists of filenames as strings. "
+	"The following modules (~p) may not work as expected and it is advised "
+	"that you change these entries to string format "
+	"(e.g., \"src/module.erl\") ",
+    ?WARN(W, [Atoms]).
 
 module_to_erl(Mod) ->
     atom_to_list(Mod) ++ ".erl".

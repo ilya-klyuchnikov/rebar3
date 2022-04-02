@@ -50,52 +50,52 @@
 -spec init(rebar_state:t()) -> {ok, rebar_state:t()}.
 init(State) ->
     State1 = rebar_state:add_provider(
-            State,
-            providers:create([
-                {name, ?PROVIDER},
-                {module, ?MODULE},
-                {bare, true},
-                {deps, ?DEPS},
-                {example, "rebar3 shell"},
-                {short_desc, "Run shell with project apps and deps in path."},
-                {desc, info()},
-                {opts, [{config, undefined, "config", string,
-                         "Path to the config file to use. Defaults to "
-                         "{shell, [{config, File}]} and then the relx "
-                         "sys.config file if not specified."},
-                        {name, undefined, "name", atom,
-                         "Gives a long name to the node."},
-                        {sname, undefined, "sname", atom,
-                         "Gives a short name to the node."},
-                        {setcookie, undefined, "setcookie", atom,
-                         "Sets the cookie if the node is distributed."},
-                        {script_file, undefined, "script", string,
-                         "Path to an escript file to run before "
-                         "starting the project apps. Defaults to "
-                         "rebar.config {shell, [{script_file, File}]} "
-                         "if not specified."},
-                        {apps, undefined, "apps", string,
-                         "A list of apps to boot before starting the "
-                         "shell. (E.g. --apps app1,app2,app3) Defaults "
-                         "to rebar.config {shell, [{apps, Apps}]} or "
-                         "relx apps if not specified."},
-                        {relname, $r, "relname", atom,
-                         "Name of the release to use as a template for the "
-                         "shell session"},
-                        {relvsn, $v, "relvsn", string,
-                         "Version of the release to use for the shell "
-                         "session"},
-                        {start_clean, undefined, "start-clean", boolean,
-                         "Cancel any applications in the 'apps' list "
-                         "or release."},
-                        {env_file, undefined, "env-file", string,
-                         "Path to file of os environment variables to setup "
-                         "before expanding vars in config files."},
-                        {user_drv_args, undefined, "user_drv_args", string,
-                         "Arguments passed to user_drv start function for "
-                         "creating custom shells."}]}
-            ])
-    ),
+               State,
+               providers:create([
+                                 {name, ?PROVIDER},
+                                 {module, ?MODULE},
+                                 {bare, true},
+                                 {deps, ?DEPS},
+                                 {example, "rebar3 shell"},
+                                 {short_desc, "Run shell with project apps and deps in path."},
+                                 {desc, info()},
+                                 {opts, [{config, undefined, "config", string,
+                                          "Path to the config file to use. Defaults to "
+                                          "{shell, [{config, File}]} and then the relx "
+                                          "sys.config file if not specified."},
+                                         {name, undefined, "name", atom,
+                                          "Gives a long name to the node."},
+                                         {sname, undefined, "sname", atom,
+                                          "Gives a short name to the node."},
+                                         {setcookie, undefined, "setcookie", atom,
+                                          "Sets the cookie if the node is distributed."},
+                                         {script_file, undefined, "script", string,
+                                          "Path to an escript file to run before "
+                                          "starting the project apps. Defaults to "
+                                          "rebar.config {shell, [{script_file, File}]} "
+                                          "if not specified."},
+                                         {apps, undefined, "apps", string,
+                                          "A list of apps to boot before starting the "
+                                          "shell. (E.g. --apps app1,app2,app3) Defaults "
+                                          "to rebar.config {shell, [{apps, Apps}]} or "
+                                          "relx apps if not specified."},
+                                         {relname, $r, "relname", atom,
+                                          "Name of the release to use as a template for the "
+                                          "shell session"},
+                                         {relvsn, $v, "relvsn", string,
+                                          "Version of the release to use for the shell "
+                                          "session"},
+                                         {start_clean, undefined, "start-clean", boolean,
+                                          "Cancel any applications in the 'apps' list "
+                                          "or release."},
+                                         {env_file, undefined, "env-file", string,
+                                          "Path to file of os environment variables to setup "
+                                          "before expanding vars in config files."},
+                                         {user_drv_args, undefined, "user_drv_args", string,
+                                          "Arguments passed to user_drv start function for "
+                                          "creating custom shells."}]}
+                                ])
+              ),
     {ok, State1}.
 
 -spec do(rebar_state:t()) -> {ok, rebar_state:t()} | {error, string()}.
@@ -144,13 +144,13 @@ setup_shell(ShellArgs) ->
     OldUser = kill_old_user(),
     %% Test for support here
     NewUser = try erlang:open_port({spawn,"tty_sl -c -e"}, []) of
-        Port when is_port(Port) ->
-            true = port_close(Port),
-            setup_new_shell(ShellArgs)
-    catch
-        error:_ ->
-            setup_old_shell()
-    end,
+                  Port when is_port(Port) ->
+                      true = port_close(Port),
+                      setup_new_shell(ShellArgs)
+              catch
+                  error:_ ->
+                      setup_old_shell()
+              end,
     rewrite_leaders(OldUser, NewUser),
     maybe_reset_logger(LoggerState).
 
@@ -232,10 +232,10 @@ rewrite_leaders(OldUser, NewUser) ->
     %% leaders are application masters. This can mess up a few things around
     %% shutdown time, but is nicer than the current lock-up.
     OldMasters = [Pid
-         || Pid <- erlang:processes(),
-            Pid < NewUser, % only change old masters
-            {_,Dict} <- [erlang:process_info(Pid, dictionary)],
-            {application_master,init,4} == proplists:get_value('$initial_call', Dict)],
+                  || Pid <- erlang:processes(),
+                     Pid < NewUser, % only change old masters
+                     {_,Dict} <- [erlang:process_info(Pid, dictionary)],
+                     {application_master,init,4} == proplists:get_value('$initial_call', Dict)],
     _ = [catch erlang:group_leader(NewUser, Pid)
          || Pid <- erlang:processes(),
             lists:member(proplists:get_value(group_leader, erlang:process_info(Pid)),
@@ -259,9 +259,9 @@ rewrite_leaders(OldUser, NewUser) ->
         end
     catch
         ?WITH_STACKTRACE(E,R,S) % may fail with custom loggers
-            ?DEBUG("Logger changes failed for ~p:~p (~p)", [E,R,S]),
-            hope_for_best
-    end.
+        ?DEBUG("Logger changes failed for ~p:~p (~p)", [E,R,S]),
+        hope_for_best
+        end.
 
 setup_paths(State) ->
     %% Add deps to path
@@ -283,9 +283,9 @@ maybe_run_script(State) ->
             try run_script_file(File)
             catch
                 ?WITH_STACKTRACE(C,E,S)
-                    ?ABORT("Couldn't run shell escript ~p - ~p:~p~nStack: ~p",
-                           [File, C, E, S])
-            end
+                ?ABORT("Couldn't run shell escript ~p - ~p:~p~nStack: ~p",
+                       [File, C, E, S])
+                end
     end.
 
 -spec find_script_option(rebar_state:t()) -> no_value | list().
@@ -326,7 +326,7 @@ maybe_boot_apps(State) ->
             ok = reread_config(Apps, State),
             ShellOpts = rebar_state:get(State, shell, []),
             BootLogLevel = debug_get_value(log, ShellOpts, info,
-                "Found boot log verbosity mode from config."),
+                                           "Found boot log verbosity mode from config."),
             boot_apps(Apps, BootLogLevel)
     end.
 
@@ -357,7 +357,7 @@ find_apps_option(State) ->
                          "Found shell apps from command line option.") of
         no_value ->
             case debug_get_value(start_clean, Opts, false,
-                                "Found start-clean argument to disable apps") of
+                                 "Found start-clean argument to disable apps") of
                 false -> no_value;
                 true -> []
             end;
@@ -402,11 +402,11 @@ find_apps_relx(State) ->
 
 load_apps(Apps) ->
     [case application:load(App) of
-        ok ->
+         ok ->
              {ok, Ks} = application:get_all_key(App),
              load_apps(proplists:get_value(applications, Ks));
-        _ ->
-            error % will be caught when starting the app
+         _ ->
+             error % will be caught when starting the app
      end || App <- normalize_load_apps(Apps),
             not lists:keymember(App, 1, application:loaded_applications())],
     ok.
@@ -451,7 +451,7 @@ boot_apps(Apps, BootLogLevel) ->
     print_booted([App || {ok, Booted} <- Res, App <- Booted], BootLogLevel),
     %% errors are not suppressed
     _ = [?ERROR("Failed to boot ~p for reason ~p", [App, Reason])
-            || {error, {App, Reason}} <- Res],
+         || {error, {App, Reason}} <- Res],
     ok.
 
 print_booted(Booted, debug) ->
@@ -503,14 +503,14 @@ wait_until_user_started(Timeout) ->
 
 add_test_paths(State) ->
     _ = [begin
-            AppDir = rebar_app_info:out_dir(App),
-            %% ignore errors resulting from non-existent directories
-            _ = code:add_path(filename:join([AppDir, "test"]))
+             AppDir = rebar_app_info:out_dir(App),
+             %% ignore errors resulting from non-existent directories
+             _ = code:add_path(filename:join([AppDir, "test"]))
          end || App <- rebar_state:project_apps(State)],
     _ = code:add_path(filename:join([rebar_dir:base_dir(State), "test"])),
     ok.
 
-% First try the --config flag, then try the relx sys_config
+                                                % First try the --config flag, then try the relx sys_config
 -spec find_config(rebar_state:t()) -> [[tuple()]] | no_config.
 find_config(State) ->
     case first_value([fun find_config_option/1,
@@ -581,9 +581,9 @@ is_src_config(Filename) ->
 -spec consult_env_config(rebar_state:t(), file:filename()) -> [[tuple()]].
 consult_env_config(State, Filename) ->
     RawString = case file:read_file(Filename) of
-        {error, _} -> "[].";
-        {ok, Bin} -> unicode:characters_to_list(Bin)
-    end,
+                    {error, _} -> "[].";
+                    {ok, Bin} -> unicode:characters_to_list(Bin)
+                end,
     ReplacedStr = replace_env_vars(RawString),
     case rebar_string:consult(unicode:characters_to_list(ReplacedStr)) of
         {error, Reason} ->

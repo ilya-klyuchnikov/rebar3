@@ -58,7 +58,7 @@
 %% @doc Runs a compile job, applying `compile_fn()' to all files,
 %% starting with `First' files, and then `RestFiles'.
 -spec run(rebar_dict() | [{_,_}] , [First], [Next], compile_fn()) ->
-    compile_fn_ret() when
+          compile_fn_ret() when
       First :: file:filename(),
       Next :: file:filename().
 run(Config, FirstFiles, RestFiles, CompileFn) ->
@@ -71,7 +71,7 @@ run(Config, FirstFiles, RestFiles, CompileFn) ->
 %% compilation are put in `TargetDir' with the base file names
 %% postfixed with `SourceExt'.
 -spec run(rebar_dict() | [{_,_}] , [First], SourceDir, SourceExt,
-      TargetDir, TargetExt, compile_fn3()) -> compile_fn_ret() when
+          TargetDir, TargetExt, compile_fn3()) -> compile_fn_ret() when
       First :: file:filename(),
       SourceDir :: file:filename(),
       TargetDir :: file:filename(),
@@ -90,7 +90,7 @@ run(Config, FirstFiles, SourceDir, SourceExt, TargetDir, TargetExt,
 %% Additional compile options can be passed in the last argument as
 %% a proplist.
 -spec run(rebar_dict() | [{_,_}] , [First], SourceDir, SourceExt,
-      TargetDir, TargetExt, compile_fn3(), [term()]) -> compile_fn_ret() when
+          TargetDir, TargetExt, compile_fn3(), [term()]) -> compile_fn_ret() when
       First :: file:filename(),
       SourceDir :: file:filename(),
       TargetDir :: file:filename(),
@@ -104,9 +104,9 @@ run(Config, FirstFiles, SourceDir, SourceExt0, TargetDir, TargetExt,
     %% Otherwise, if the extension doesn't have a leading dot
     %% we add it ourselves (e.g.: `peg' -> `.peg')
     SourceExt = case SourceExt0 of
-        [$.|_Ext] -> SourceExt0;
-        _ -> [$.] ++ SourceExt0
-    end,
+                    [$.|_Ext] -> SourceExt0;
+                    _ -> [$.] ++ SourceExt0
+                end,
     SourceExtRe = "^(?!\\._).*\\" ++ SourceExt ++ [$$],
 
     Recursive = proplists:get_value(recursive, Opts, true),
@@ -135,7 +135,7 @@ ok_tuple(Source, Ws) ->
 %% @doc format error and warning strings for a given source file
 %% according to user preferences.
 -spec error_tuple(file:filename(), [Err], [Warn], rebar_dict() | [{_,_}]) ->
-    error_tuple() when
+          error_tuple() when
       Err :: string(),
       Warn :: string().
 error_tuple(Source, Es, Ws, Opts) ->
@@ -145,7 +145,7 @@ error_tuple(Source, Es, Ws, Opts) ->
 %% @doc from a given path, and based on the user-provided options,
 %% format the file path according to the preferences.
 -spec format_error_source(file:filename(), rebar_dict() | [{_,_}]) ->
-    file:filename().
+          file:filename().
 format_error_source(Path, Opts) ->
     rebar_dir:format_source_file_name(Path, Opts).
 
@@ -225,7 +225,7 @@ format_warnings(Source, Warnings, Opts) ->
     %% on whether the first call to rebar_erlc_compiler was done with
     %% the type `rebar_dict()' or `rebar_state:t()'.
     LookupFn = if is_list(Opts) -> fun lists:member/2
-                ; true          -> fun dict:is_key/2
+                 ; true          -> fun dict:is_key/2
                end,
     Prefix = case LookupFn(warnings_as_errors, Opts) of
                  true -> "";
@@ -267,12 +267,12 @@ format_error(Source, Extra, {Line, Mod=epp, Desc={include,lib,File}}) ->
     %% Special case for include file errors, overtaking the default one
     BaseDesc = Mod:format_error(Desc),
     Friendly = case filename:split(File) of
-        [Lib, "include", _] ->
-            io_lib:format("; Make sure ~s is in your app "
-                          "file's 'applications' list", [Lib]);
-        _ ->
-            ""
-    end,
+                   [Lib, "include", _] ->
+                       io_lib:format("; Make sure ~s is in your app "
+                                     "file's 'applications' list", [Lib]);
+                   _ ->
+                       ""
+               end,
     FriendlyDesc = BaseDesc ++ Friendly,
     ?FMT("~ts:~w: ~ts~ts~n", [Source, Line, Extra, FriendlyDesc]);
 format_error(Source, Extra, {{Line, Column}, Mod, Desc}) ->

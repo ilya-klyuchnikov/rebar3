@@ -96,27 +96,27 @@ run(P) ->
     catch_loop(P, start_init_shell()).
 
 catch_loop(Port, Shell) ->
-    catch_loop(Port, Shell, queue:new()).
+	catch_loop(Port, Shell, queue:new()).
 
 catch_loop(Port, Shell, Q) ->
-    case catch server_loop(Port, Q) of
-	new_shell ->
-	    exit(Shell, kill),
-	    catch_loop(Port, start_new_shell());
-	{unknown_exit,{Shell,Reason},_} ->		 % shell has exited
-	    case Reason of
-		normal ->
-                    put_port(<<"*** ">>, Port);
-		_ ->
-                    put_port(<<"*** ERROR: ">>, Port)
-	    end,
-	    put_port(<<"Shell process terminated! ***\n">>, Port),
-	    catch_loop(Port, start_new_shell());
-	{unknown_exit,_,Q1} ->
-	    catch_loop(Port, Shell, Q1);	     
-	{'EXIT',R} ->
-	    exit(R)
-    end.
+	case catch server_loop(Port, Q) of
+	    new_shell ->
+		exit(Shell, kill),
+		catch_loop(Port, start_new_shell());
+	    {unknown_exit,{Shell,Reason},_} ->		 % shell has exited
+		case Reason of
+		    normal ->
+			put_port(<<"*** ">>, Port);
+		    _ ->
+			put_port(<<"*** ERROR: ">>, Port)
+		end,
+		put_port(<<"Shell process terminated! ***\n">>, Port),
+		catch_loop(Port, start_new_shell());
+	    {unknown_exit,_,Q1} ->
+		catch_loop(Port, Shell, Q1);	     
+	    {'EXIT',R} ->
+		exit(R)
+	end.
 
 link_and_save_shell(Shell) ->
     link(Shell),
@@ -163,7 +163,7 @@ server_loop(Port, Q) ->
 		_ ->
 		    throw({unknown_exit,{SomePid,What},Q})
 	    end;
-	
+
 	_Other ->				% Ignore other messages
 	    server_loop(Port, Q)
     end.
@@ -198,7 +198,7 @@ io_request({put_chars,unicode,Chars}, Port, Q) -> % Binary new in R9C
         error ->
             {error,{error,put_chars},Q};
         Bin ->
-           put_chars(Bin, Port, Q)
+	    put_chars(Bin, Port, Q)
     end;
 io_request({put_chars,unicode,Mod,Func,Args}, Port, Q) ->
     case catch apply(Mod,Func,Args) of
@@ -452,12 +452,12 @@ get_line_doit(Prompt, Port, Q, Accu, Enc) ->
 	true ->
 	    case get(eof) of
 		true ->
-		   case Accu of
-		       [] ->
-			   {ok,eof,Q};
-		       _ ->
-			   {ok,binrev(Accu,[]),Q}
-		   end;
+		    case Accu of
+			[] ->
+			    {ok,eof,Q};
+			_ ->
+			    {ok,binrev(Accu,[]),Q}
+		    end;
 		_ ->
 		    get_line(Prompt, Port, Q, Accu, Enc)
 	    end;
@@ -484,12 +484,12 @@ get_line_doit(Prompt, Port, Q, Accu, Enc) ->
 				case is_cr_at(Pos - 1,Bin) of
 				    false ->
 					<<H:PosPlus/binary,
-					 T/binary>> = Bin,
+					  T/binary>> = Bin,
 					{H,T};
 				    true ->
 					PosMinus = Pos - 1,
 					<<H:PosMinus/binary,
-					 _,_,T/binary>> = Bin,
+					  _,_,T/binary>> = Bin,
 					{binrev([],[H,$\n]),T}
 				end,
 			    case Tail of
@@ -514,12 +514,12 @@ get_line_doit(Prompt, Port, Q, Accu, Enc) ->
 				case is_cr_at(Pos - 1,Bin) of
 				    false ->
 					<<H:PosPlus/binary,
-					 T/binary>> = Bin,
+					  T/binary>> = Bin,
 					{H,T};
 				    true ->
 					PosMinus = Pos - 1,
 					<<H:PosMinus/binary,
-					 _,_,T/binary>> = Bin,
+					  _,_,T/binary>> = Bin,
 					{[H,$\n],T}
 				end,
 			    case Tail of

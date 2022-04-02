@@ -11,7 +11,7 @@
 
 %% @doc Sort apps with topological sort to get proper build order
 -spec compile_order([rebar_app_info:t()]) ->
-    {ok, [rebar_app_info:t()]} | {error, no_sort | {cycles, [[binary(),...]]}}.
+	  {ok, [rebar_app_info:t()]} | {error, no_sort | {cycles, [[binary(),...]]}}.
 compile_order(Apps) ->
     Graph = digraph:new(),
     lists:foreach(fun(App) ->
